@@ -1,38 +1,31 @@
-import OpenAI from "openai"
+import { websocketHandlers } from "./chatSocket/handler"
+import { llmChatExchange } from "./llm/llm"
 
-const openai = new OpenAI({
-    apiKey: process.env.API_KEY_OPENAI
-})
 
-async function main() {
-    try {
-        const completion = await openai.chat.completions.create({
-            model: "gpt-4o",
-            messages: [
-                {
-                    role: 'system',
-                    content: 'you are a helpful assistant',
-                },
-                {
-                    role: 'user',
-                    content: 'say this is a test'
-                }
-            ],
-        })
-        console.log(completion.choices[0].message)
+async function start() {
+    const message = "say this is a test"
+    const response = await llmChatExchange(message)
+    if (response) {
+        console.log(response)
     }
-    catch (err) {
-        console.error(err)
+    else {
+        console.log("error no response")
     }
 }
-main()
-
-
+start()
 const server = Bun.serve({
     port: 3000,
     fetch(req) {
+        const url = new URL(req.url)
+        if (url.pathname === "/ws") {
+            if (server.upgrade(req)) {
+                return
+            }
+            return new Response("Upgrade failed:", { status: 500 })
+        }
         return new Response("hello from server")
-    }
+    },
+    websocket: websocketHandlers,
 })
 
 console.log(`server listening on ${server.port}`)

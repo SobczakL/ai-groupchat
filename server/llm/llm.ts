@@ -1,9 +1,9 @@
 import OpenAI from "openai";
-const openai = new OpenAI({
-    apiKey: process.env.API_KEY_OPENAI
-})
 
-async function main() {
+export async function llmChatExchange(message: string): Promise<string | null> {
+    const openai = new OpenAI({
+        apiKey: process.env.API_KEY_OPENAI
+    })
     try {
         const completion = await openai.chat.completions.create({
             model: "gpt-4o",
@@ -14,13 +14,15 @@ async function main() {
                 },
                 {
                     role: 'user',
-                    content: 'say this is a test'
+                    content: message
                 }
             ],
         })
-        console.log(completion.choices[0].message)
+        const response = completion.choices[0].message.content
+        return response
     }
     catch (err) {
-        console.error(err)
+        console.error("Error in llmChatExchange:", err)
+        return null
     }
 }
