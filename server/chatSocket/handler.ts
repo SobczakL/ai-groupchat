@@ -1,13 +1,18 @@
 interface Client {
-    roomId: number,
+    userName: string;
+    roomId: number;
 }
 
 interface Hub {
-    rooms: number[],
-    broadcast: ArrayBuffer,
-    register: Client,
-    unregister: Client
+    rooms: number[];
+    register: Client;
+    unregister: Client;
 }
+
+export function handleHub() {
+
+}
+
 
 export const websocketHandlers = {
     open(ws: WebSocket) {
