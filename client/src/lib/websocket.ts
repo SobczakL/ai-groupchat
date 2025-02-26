@@ -8,7 +8,7 @@ export default function useWebSocket(initialMessage: string) {
 
     useEffect(() => {
         const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${wsProtocol}//${window.location.host}/`
+        const wsUrl = `${wsProtocol}//localhost:3000/ws`
         const newWs = new WebSocket(wsUrl)
 
         newWs.onopen = () => {
@@ -32,7 +32,15 @@ export default function useWebSocket(initialMessage: string) {
             console.log("WebSocket closing")
             newWs.onclose()
         }
-    }, [])
+    }, [message])
 
-    return { message, receievedMessages, ws }
+    const sendMessage = (message: string) => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(message);
+        } else {
+            console.error('WebSocket connection not open');
+        }
+    };
+
+    return { message, receievedMessages, ws, sendMessage }
 }

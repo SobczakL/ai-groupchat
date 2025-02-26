@@ -14,13 +14,6 @@ function App() {
         console.log("clicked")
     };
 
-    useEffect(() => {
-        if (ws && ws.readyState === WebSocket.OPEN) {
-            sendMessage(userMessage);
-        } else {
-            console.log("WebSocket not open yet, message will be sent on open");
-        }
-    }, [userMessage, ws, sendMessage]); // Depend on userMessage, ws, and sendMessage
     return (
         <div className='h-[100vh]'>
             <p className='mx-16 text-black'>hello!</p>
