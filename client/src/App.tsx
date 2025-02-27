@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import './App.css';
 import { Button } from "@/components/ui/button";
 import useWebSocket from './lib/websocket';
+import MessageWindow from './components/messageWindow/MessageWindow';
 
 function App() {
     const [userMessage, setUserMessage] = useState('');
@@ -18,18 +19,10 @@ function App() {
         <div className='h-[100vh]'>
             <p className='mx-16 text-black'>hello!</p>
             <Button>button</Button>
-            <form onSubmit={(e) => handleUserMessage(e, userMessage)}>
-                <input
-                    type="text"
-                    value={userMessage}
-                    onChange={(e) => setUserMessage(e.target.value)}
-                />
-                <Button type="submit">send</Button>
-            </form>
-            {receivedMessages &&
-                receivedMessages.map((message: string, index: number) => (
-                    <p key={index}>{message}</p>
-                ))}
+            <MessageWindow
+                receivedMessages={receivedMessages}
+                sendMessage={sendMessage}
+            />
         </div>
     );
 }
