@@ -5,13 +5,13 @@ import useWebSocket from './lib/websocket';
 
 function App() {
     const [userMessage, setUserMessage] = useState('');
-    const { message, receivedMessages, ws, sendMessage } = useWebSocket('');
+    const { receivedMessages, ws, sendMessage } = useWebSocket('');
+
 
     const handleUserMessage = (e: React.FormEvent<HTMLFormElement>, message: string) => {
         e.preventDefault();
-        setUserMessage(message);
         sendMessage(message)
-        console.log("clicked")
+        setUserMessage('')
     };
 
     return (
