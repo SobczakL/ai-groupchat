@@ -1,4 +1,4 @@
-import type { WebSocketHandlers, ServerWebSocket } from "../types/websocket";
+import type { WebSocketHandlers, ServerWebSocket } from "../lib/types";
 
 interface Client {
     userName: string;
@@ -11,10 +11,10 @@ interface Hub {
     unregister: Client;
 }
 
-// export function handleWebSocket() {
-//     const roomId = UR
-//
-// }
+export function handleWebSocket() {
+    const roomId = UR
+
+}
 
 export const websocketHandlers: WebSocketHandlers = {
     open(ws) {

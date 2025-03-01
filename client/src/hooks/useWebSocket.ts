@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import type { WebSocketMessage } from "@/lib/types";
 
 export default function useWebSocket() {
     const [receivedMessages, setReceivedMessages] = useState<string[]>([]);
@@ -43,9 +44,9 @@ export default function useWebSocket() {
         }
     }, []);
 
-    const sendMessage = useCallback((message: string) => {
+    const sendMessage = useCallback((data: WebSocketMessage) => {
         if (ws && ws.readyState === WebSocket.OPEN) {
-            ws.send(message);
+            ws.send(JSON.stringify(data));
         } else {
             console.error('WebSocket connection not open');
         }

@@ -37,12 +37,12 @@ const server = Bun.serve({
         return new Response("hello from server", { headers });
     },
     websocket: {
-        ...websocketHandlers, // Spread existing handlers
+        ...websocketHandlers,
         message: async (ws: ServerWebSocket, message: string | ArrayBuffer | Uint8Array) => {
-            console.log(`Received message: ${message}`);
-            const messageText = String(message); // Convert to string
-            const llmResponse = await start(messageText); // Call start with the message
-            ws.send(llmResponse); // Send the LLM response back to the client
+            console.log(`Received message: ${message}`)
+            const messageText = String(message)
+            const llmResponse = await start(messageText)
+            ws.send(llmResponse)
         },
     },
 });

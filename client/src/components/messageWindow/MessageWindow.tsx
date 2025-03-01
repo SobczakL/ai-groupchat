@@ -1,33 +1,31 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
+import { User, WebSocketMessage } from "@/lib/types";
 
 interface MessageWindowProps {
-    receievedMessages: string[];
-    sendMessage: (message: string) => void;
+    userDetails: User;
+    receievedMessages: (message: string) => void;
+    sendMessage: (message: WebSocketMessage) => void;
 }
 
 interface Message {
     id: number;
-    user: string;
+    user: User;
     message: string;
 }
 
-export default function MessageWindow({ receivedMessages, sendMessage }: MessageWindowProps) {
+export default function MessageWindow({
+    userDetails,
+    receievedMessages,
+    sendMessage
+}: MessageWindowProps) {
 
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const [messages, setMessages] = useState<Message[]>([])
 
     const lastProcessedIndex = useRef(-1)
 
-    const handleUserMessage = () => {
-        if (textareaRef.current) {
-            const newMessage = textareaRef.current.value
-            setMessages(prevMessages => [...prevMessages, { id: Math.random(), user: "user", message: newMessage }])
-            sendMessage(textareaRef.current.value)
-            textareaRef.current.value = ''
-        }
-    }
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -37,13 +35,41 @@ export default function MessageWindow({ receivedMessages, sendMessage }: Message
     };
 
     useEffect(() => {
-        if (receivedMessages.length > lastProcessedIndex.current) {
-            const lastMessage = receivedMessages[receivedMessages.length - 1]
-
-            setMessages(prevMessages => [...prevMessages, { id: Math.random(), user: "llm", message: lastMessage }]);
-            lastProcessedIndex.current = receivedMessages.length
+        for (let i = lastProcessedIndex.current + 1; i < receievedMessages.length; i++) {
+            try {
+                const parsedMessage = JSON.parse(receievedMessages[i])
+                if (parsedMessage.type === "BROADCAST") {
+                    const userData = parsedMessage.payload
+                    setMessages(prev => [...prev, {
+                        id: Date.now(),
+                        user: userData.username,
+                        message: userData.message
+                    }])
+                }
+            }
+            catch (error) {
+                console.error("Error parsing message:", error)
+            }
+            lastProcessedIndex.current = i
         }
-    }, [receivedMessages]);
+    }, [receievedMessages]);
+
+    const handleUserMessage = () => {
+        if (textareaRef.current && textareaRef.current.value.trim()) {
+            const newMessage = textareaRef.current.value
+            setMessages(prev => [...prev, {
+                id: Date.now(),
+                user: userDetails,
+                message: newMessage
+            }])
+            const data: WebSocketMessage = {
+                "type": "BROADCAST",
+                "payload": { ...userDetails, message: newMessage }
+            }
+            sendMessage(data)
+            textareaRef.current.value = ''
+        }
+    }
 
     return (
         <div>

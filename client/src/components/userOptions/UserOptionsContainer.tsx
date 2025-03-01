@@ -27,11 +27,14 @@ const formSchema = z.object({
     username: z.string()
 })
 
+type FormValues = z.infer<typeof formSchema>;
+
 interface UserOptionsContainerProps {
     rooms: Rooms;
+    handleNewUser: (values: FormValues) => void;
 }
 
-export default function UserOptionsContainer({ rooms }: UserOptionsContainerProps) {
+export default function UserOptionsContainer({ rooms, handleNewUser }: UserOptionsContainerProps) {
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -42,8 +45,8 @@ export default function UserOptionsContainer({ rooms }: UserOptionsContainerProp
         }
     })
 
-    const handleSubmit = (values: z.infer<typeof formSchema>) => {
-        console.log(values)
+    const handleSubmit = (values: FormValues) => {
+        handleNewUser(values)
     }
 
     return (
