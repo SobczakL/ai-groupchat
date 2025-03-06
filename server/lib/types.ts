@@ -10,20 +10,20 @@ export interface WebSocketHandlers {
     drain?(ws: ServerWebSocket): void;
 }
 
-type Room = {
-    id: number;
-    name: string;
-}
-export type Rooms = Room[]
-
-export type User = {
-    userID: number;
-    room: Room;
-    username: string;
-    message: string;
-}
-
-export type WebSocketMessage = {
-    type: string;
-    payload: User | any;
-}
+// type Room = {
+//     id: number;
+//     name: string;
+// }
+// export type Rooms = Room[]
+//
+// export type User = {
+//     userID: number;
+//     room: Room;
+//     username: string;
+//     message: string;
+// }
+//
+// export type WebSocketMessage = {
+//     type: string;
+//     payload: User | any;
+// }

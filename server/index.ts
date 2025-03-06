@@ -1,4 +1,5 @@
 import { websocketHandlers } from "./chatSocket/handler"
+import type { WebSocketMessage } from "./lib/types";
 import { llmChatExchange } from "./llm/llm"
 import type { ServerWebSocket } from "bun";
 
@@ -38,11 +39,11 @@ const server = Bun.serve({
     },
     websocket: {
         ...websocketHandlers,
-        message: async (ws: ServerWebSocket, message: string | ArrayBuffer | Uint8Array) => {
-            console.log(`Received message: ${message}`)
-            const messageText = String(message)
-            const llmResponse = await start(messageText)
-            ws.send(llmResponse)
+        message: async (ws: ServerWebSocket, data: string) => {
+            const something = JSON.parse(data)
+            console.log(`Received message: ${something.type}`)
+            // const llmResponse = await start(messageText)
+            // ws.send(llmResponse)
         },
     },
 });

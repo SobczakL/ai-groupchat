@@ -46,6 +46,7 @@ export default function useWebSocket() {
 
     const sendMessage = useCallback((data: WebSocketMessage) => {
         if (ws && ws.readyState === WebSocket.OPEN) {
+            console.log(JSON.stringify(data))
             ws.send(JSON.stringify(data));
         } else {
             console.error('WebSocket connection not open');

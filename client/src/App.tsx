@@ -21,7 +21,6 @@ function App() {
             "payload": newUser
         }
         sendMessage(data)
-
     }
 
 
