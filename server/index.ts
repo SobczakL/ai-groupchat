@@ -41,8 +41,8 @@ const server = Bun.serve({
         ...websocketHandlers,
         message: async (ws: ServerWebSocket, data: string) => {
             const something = JSON.parse(data)
-            console.log(`Received message: ${something.type}`)
-            // const llmResponse = await start(messageText)
+            console.log(`Received message: ${something}`)
+            // const llmResponse = await start(something)
             // ws.send(llmResponse)
         },
     },
