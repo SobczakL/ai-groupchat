@@ -2,6 +2,12 @@ import { websocketHandlers } from "./chatSocket/handler"
 import type { WebSocketMessage } from "./lib/types";
 import { llmChatExchange } from "./llm/llm"
 import type { ServerWebSocket } from "bun";
+import {
+    initDatabase,
+    checkUsers,
+    addUser,
+    checkRooms
+} from './db/db'
 
 
 async function start(message: string) {
@@ -35,13 +41,19 @@ const server = Bun.serve({
             }
             return new Response("Upgrade failed:", { status: 500, headers });
         }
+        initDatabase()
         return new Response("hello from server", { headers });
     },
     websocket: {
         ...websocketHandlers,
         message: async (ws: ServerWebSocket, data: string) => {
-            const something = JSON.parse(data)
-            console.log(`Received message: ${something}`)
+            const messageData = JSON.parse(data)
+
+
+            switch (messageData.type) {
+                case ("CHECK"):
+                    console.log(checkUsers(messageData.username))
+            }
             // const llmResponse = await start(something)
             // ws.send(llmResponse)
         },

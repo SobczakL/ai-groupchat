@@ -34,15 +34,16 @@ export function checkUsers(username: string): boolean {
 }
 
 export function addUser(username: string, roomId: number): void {
-    let newRoomId;
-    if (roomId === 0) {
-        const getRandomInt()
+    let localRoomId = roomId
+    if (localRoomId === 0) {
+        localRoomId = Math.floor(Math.random() * (999 - 100 + 1)) + 100;
+
     }
     const insertUser = db.prepare(
         'INSERT INTO users (roomId, username) VALUES (?, ?)'
     )
-    insertUser.run(roomId, username)
-    console.log(`User ${username} added to room ${roomId}`)
+    insertUser.run(localRoomId, username)
+    console.log(`User ${username} added to room ${localRoomId}`)
 }
 
 export function checkRooms(roomId: number, username: string): void {
@@ -57,27 +58,12 @@ export function checkRooms(roomId: number, username: string): void {
     }
 }
 
-export function manageRooms(dbPath: string): Database {
-    const checkUser = (username) => {
+// const query = db.query(`
+//     SELECT users.username, users.roomId
+//     FROM users
+// `)
+//
+// const results = query.all()
+// console.log(results)
 
-    }
-}
-
-export function addUser(dbPath: string, username: string, roomId: number): Database {
-
-}
-
-export function checkRooms(dbPath: string, username: string): Database {
-}
-
-
-
-const query = db.query(`
-    SELECT users.username, users.roomId
-    FROM users
-`)
-
-const results = query.all()
-console.log(results)
-
-db.close()
+// db.close()
