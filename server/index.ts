@@ -3,12 +3,15 @@ import type { WebSocketMessage } from "./lib/types";
 import { llmChatExchange } from "./llm/llm"
 import type { ServerWebSocket } from "bun";
 import {
+    tableHelper,
+    washTable,
     initDatabase,
-    checkUsers,
     addUser,
     checkRooms
 } from './db/db'
 
+initDatabase()
+washTable()
 
 async function start(message: string) {
     const response = await llmChatExchange(message)
@@ -41,7 +44,6 @@ const server = Bun.serve({
             }
             return new Response("Upgrade failed:", { status: 500, headers });
         }
-        initDatabase()
         return new Response("hello from server", { headers });
     },
     websocket: {
@@ -49,10 +51,11 @@ const server = Bun.serve({
         message: async (ws: ServerWebSocket, data: string) => {
             const messageData = JSON.parse(data)
 
-
             switch (messageData.type) {
                 case ("CHECK"):
-                    console.log(checkUsers(messageData.username))
+                    // washTable()
+                    tableHelper()
+                    addUser(messageData.payload.username, messageData.payload.roomId)
             }
             // const llmResponse = await start(something)
             // ws.send(llmResponse)

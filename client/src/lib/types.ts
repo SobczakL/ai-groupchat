@@ -6,7 +6,7 @@ type Room = {
 export type Rooms = Room[]
 
 export type User = {
-    userID: number;
+    userId: number;
     room: Room;
     username: string;
     message: string;

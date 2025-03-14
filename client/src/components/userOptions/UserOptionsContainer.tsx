@@ -22,8 +22,8 @@ import { useForm } from "react-hook-form";
 import type { Rooms } from "@/lib/types";
 
 const formSchema = z.object({
-    userID: z.number(),
-    roomID: z.coerce.number(),
+    userId: z.number(),
+    roomId: z.coerce.number(),
     username: z.string()
 })
 
@@ -39,8 +39,8 @@ export default function UserOptionsContainer({ rooms, handleNewUser }: UserOptio
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            userID: Date.now(),
-            roomID: 1,
+            userId: Date.now(),
+            roomId: 1,
             username: ""
         }
     })
@@ -70,7 +70,7 @@ export default function UserOptionsContainer({ rooms, handleNewUser }: UserOptio
                 />
                 <FormField
                     control={form.control}
-                    name="roomID"
+                    name="roomId"
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Chat Room</FormLabel>

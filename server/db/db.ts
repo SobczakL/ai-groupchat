@@ -5,15 +5,15 @@ export function initDatabase(): void {
 
     db.run(`
         CREATE TABLE IF NOT EXISTS users (
-        id INTERGER PRIMARY KEY AUTOINCREMENT,
-        roomId INTERGER,
-        username TEXT
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE,
+        roomId INTERGER
         )
     `)
 
     db.run(`
         CREATE TABLE IF NOT EXISTS rooms (
-        id INTERGER PRIMARY KEY AUTOINCREMENT,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         roomId INTERGER,
         username TEXT
         )
@@ -26,25 +26,42 @@ export function initDatabase(): void {
 // - if roomId != db roomId -> update roomId
 // - subscribe user to roomId
 
+export function tableHelper(): void {
+    const query = db.query(`
+        SELECT users.username, users.roomId
+        FROM users
+    `)
 
-export function checkUsers(username: string): boolean {
-    const query = db.prepare('SELECT COUNT(*) AS count FROM users WHERE username = ?')
-    const result = query.get(username) as { count: number }
-    return result.count > 0;
+    const results = query.all()
+    console.log('tableHelper results', results)
+}
+
+export function washTable(): void {
+    db.run('DELETE from users')
+    console.log('user table washed')
 }
 
 export function addUser(username: string, roomId: number): void {
-    let localRoomId = roomId
+    let localRoomId = roomId;
     if (localRoomId === 0) {
         localRoomId = Math.floor(Math.random() * (999 - 100 + 1)) + 100;
-
     }
-    const insertUser = db.prepare(
-        'INSERT INTO users (roomId, username) VALUES (?, ?)'
-    )
-    insertUser.run(localRoomId, username)
-    console.log(`User ${username} added to room ${localRoomId}`)
+
+    const insertUser = db.prepare(`
+        INSERT INTO users (username, roomId) VALUES (?, ?)
+        ON CONFLICT(username) DO NOTHING
+    `);
+
+    const insertInfo = insertUser.run(username, localRoomId);
+    if (insertInfo.changes > 0) {
+        console.log(`User ${username} added to room ${localRoomId}`);
+    }
+    else {
+        console.log(`User ${username} already exists`)
+    }
 }
+
+
 
 export function checkRooms(roomId: number, username: string): void {
     const query = db.prepare('SELECT COUNT(*) AS count FROM rooms WHERE roomId = ?')
@@ -58,12 +75,5 @@ export function checkRooms(roomId: number, username: string): void {
     }
 }
 
-// const query = db.query(`
-//     SELECT users.username, users.roomId
-//     FROM users
-// `)
-//
-// const results = query.all()
-// console.log(results)
 
 // db.close()
