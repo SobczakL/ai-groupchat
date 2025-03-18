@@ -55,7 +55,12 @@ const server = Bun.serve({
                 case ("CHECK"):
                     // washTable()
                     tableHelper()
-                    addUser(messageData.payload.username, messageData.payload.roomId)
+                    const response = addUser(messageData.payload.username, messageData.payload.roomId)
+                    ws.send(JSON.stringify({
+                        type: "SERVER",
+                        response: response
+                    }))
+
             }
             // const llmResponse = await start(something)
             // ws.send(llmResponse)

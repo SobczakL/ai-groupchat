@@ -25,12 +25,22 @@ export default function useWebSocket() {
                 console.log(`WebSocket Error:`, error);
             };
 
-            newWs.onmessage = (e) => {
-                setReceivedMessages((prev) => {
-                    const safeArray = Array.isArray(prev) ? prev : [];
-                    const updated = [...safeArray, e.data];
-                    return updated;
-                });
+            newWs.onmessage = (event: MessageEvent) => {
+                try {
+                    const message: WebSocketMessage = JSON.parse(event.data)
+                    console.log("Received message: ", message)
+
+                    if (message.type === "CHAT") {
+                        setReceivedMessages((prev) => {
+                            const safeArray = Array.isArray(prev) ? prev : [];
+                            const updated = [...safeArray, event.data];
+                            return updated;
+                        });
+                    }
+                }
+                catch (error) {
+                    console.log("Error receiving message", error)
+                }
             };
 
             setWs(newWs);

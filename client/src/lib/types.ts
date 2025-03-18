@@ -13,7 +13,22 @@ export type User = {
 }
 
 //WebSocket Message Types
-export type WebSocketMessage = {
-    type: string;
-    payload: User | any;
+type ChatMessagePayload = {
+    user: User;
+    message: string;
+    timestamp: Date;
+};
+
+type UpdateUserPayload = {
+    user: User;
 }
+
+type WebSocketPayload =
+    | ChatMessagePayload
+    | UpdateUserPayload
+    | any;
+
+export type WebSocketMessage = {
+    type: "SERVER" | "CHECK" | "CHAT" | string;
+    payload: WebSocketPayload;
+};
