@@ -1,4 +1,5 @@
 import { Database } from 'bun:sqlite'
+import type { RoomUsers } from '../lib/types'
 
 const db = new Database('chatDb.sqlite', { create: true })
 export function initDatabase(): void {
@@ -25,6 +26,32 @@ export function initDatabase(): void {
 // - when user created, check if user exists and roomId
 // - if roomId != db roomId -> update roomId
 // - subscribe user to roomId
+
+
+export async function currentRooms(): Promise<RoomUsers[]> {
+    try {
+        const query = db.query(`
+            SELECT
+            r.roomId,
+            GROUP_CONCAT(u.username) AS usernames
+            FROM
+            rooms r
+            LEFT JOIN
+            users u ON r.roomId = u.roomId
+            GROUP BY
+            r.roomId
+        `)
+        const rows = await query.all()
+        return rows.map((row: any) => ({
+            roomId: row.roomId as number,
+            usernames: row.usernames ? (row.usernames as string).split(',') : []
+        }))
+    }
+    catch (error) {
+        console.error('Error fetching room users:', error)
+        throw error;
+    }
+}
 
 export function tableHelper(): void {
     const query = db.query(`
