@@ -3,33 +3,15 @@ import type { WebSocketMessage } from "./lib/types";
 import { llmChatExchange } from "./llm/llm"
 import type { ServerWebSocket } from "bun";
 import {
-    tableHelper,
+    currentRooms,
     washTable,
     initDatabase,
     addUser,
-    checkRooms
 } from './db/db'
 
 initDatabase()
-washTable()
+// washTable()
 
-async function start(message: string) {
-    const response = await llmChatExchange(message)
-    try {
-        if (response) {
-            console.log(response)
-            return response
-        }
-        else {
-            console.log("error no response")
-        }
-    }
-    catch (error) {
-        console.error(`Error in function start: ${error}`)
-        return `Error: ${error}`
-
-    }
-}
 
 const server = Bun.serve({
     port: 3000,
@@ -44,6 +26,26 @@ const server = Bun.serve({
             }
             return new Response("Upgrade failed:", { status: 500, headers });
         }
+        if (url.pathname === '/rooms') {
+            try {
+                const rooms = await currentRooms()
+
+                return new Response(JSON.stringify(rooms), {
+                    headers,
+                    status: 200,
+                });
+            } catch (error) {
+                console.error("Error fetching rooms:", error);
+                return new Response(
+                    JSON.stringify({ error: "Failed to fetch rooms" }),
+                    {
+                        status: 500,
+                        headers,
+                    }
+                );
+            }
+
+        }
         return new Response("hello from server", { headers });
     },
     websocket: {
@@ -54,7 +56,6 @@ const server = Bun.serve({
             switch (messageData.type) {
                 case ("CHECK"):
                     // washTable()
-                    tableHelper()
                     addUser(messageData.payload.username, messageData.payload.roomId)
                     break;
                 case ("CHAT"):
@@ -77,8 +78,6 @@ const server = Bun.serve({
                     }
                     break;
             }
-            // const llmResponse = await start(something)
-            // ws.send(llmResponse)
         },
     },
 });

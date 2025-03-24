@@ -1,15 +1,22 @@
 import './App.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import useWebSocket from './hooks/useWebSocket';
 import MessageWindow from './components/messageWindow/MessageWindow';
 import UserOptionsContainer from './components/userOptions/UserOptionsContainer';
 import type { NewUser, Rooms } from './lib/types';
+import { useGetCurrentRooms } from './hooks/useGetCurrentRooms';
 
 function App() {
     const { receivedMessages, ws, sendMessage } = useWebSocket('');
+    const { rooms, isLoading, error } = useGetCurrentRooms()
     const [users, setUsers] = useState<NewUser[]>([])
 
-    const rooms: Rooms = [
+    useEffect(() => {
+        console.log(isLoading)
+        console.log(rooms)
+    }, [])
+
+    const tempRooms: Rooms = [
         { id: 1, name: "Room 1" },
         { id: 2, name: "Room 2" },
         { id: 3, name: "Room 3" },
@@ -27,7 +34,7 @@ function App() {
     return (
         <div className='h-[100vh]'>
             <UserOptionsContainer
-                rooms={rooms}
+                rooms={tempRooms}
                 handleNewUser={handleNewUser}
             />
             {/* {users && */}
