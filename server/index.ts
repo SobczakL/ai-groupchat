@@ -10,7 +10,7 @@ import {
 } from './db/db'
 
 initDatabase()
-washTable()
+// washTable()
 
 
 const server = Bun.serve({

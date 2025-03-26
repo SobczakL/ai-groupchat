@@ -21,22 +21,30 @@ export function initDatabase(): void {
     console.log('Database initialized')
 }
 
-//FIX:
-// function tableHelper(): void {
-//     const users = db.run('SELECT * FROM users')
-//     const rooms = db.run('SELECT * FROM rooms')
-//     console.table(users)
-//     console.table(rooms)
-// }
+//NOTE:
+// Temp func to clear existing table for testing
+export function washTable(): void {
+    db.run('DELETE from users')
+    db.run('DELETE from rooms')
+    console.log('user table washed')
+}
+
+//NOTE:
+//temp func for testing
+function tableHelper(): void {
+    const users = db.query('SELECT username FROM users')
+    const rooms = db.query('SELECT roomId FROM rooms')
+    console.log(users.all())
+    console.log(rooms.all())
+}
 
 export async function currentRooms(): Promise<RoomUsers[]> {
     try {
         const query = db.query(`
-            SELECT rooms.roomId FROM rooms
+            SELECT roomId FROM rooms
         `)
         const rows = await query.all()
-        console.log(rows)
-        // tableHelper()
+        tableHelper()
         return rows.map((row: any) => ({
             roomId: row.roomId as number,
             usernames: row.usernames ? (row.usernames as string).split(',') : []
@@ -50,16 +58,6 @@ export async function currentRooms(): Promise<RoomUsers[]> {
 }
 
 //FIX:
-// Temp func to clear existing table for testing
-export function washTable(): void {
-    db.run('DELETE from users')
-    db.run('DELETE from rooms')
-    console.log('user table washed')
-}
-
-
-//FIX:
-
 export function addUser(username: string, roomId: number): void {
     let localRoomId = roomId;
     if (localRoomId === 0) {

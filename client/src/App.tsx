@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import useWebSocket from './hooks/useWebSocket';
 import MessageWindow from './components/messageWindow/MessageWindow';
 import UserOptionsContainer from './components/userOptions/UserOptionsContainer';
-import type { NewUser, Rooms } from './lib/types';
+import type { NewUser } from './lib/types';
 import { useGetCurrentRooms } from './hooks/useGetCurrentRooms';
 
 function App() {
@@ -17,9 +17,9 @@ function App() {
     }, [isLoading, rooms])
 
     const tempRooms: Rooms = [
-        { id: 1, name: "Room 1" },
-        { id: 2, name: "Room 2" },
-        { id: 3, name: "Room 3" },
+        { roomId: 1 },
+        { roomId: 2 },
+        { roomId: 3 },
     ]
 
     const handleNewUser = (newUser: NewUser) => {
@@ -34,7 +34,7 @@ function App() {
     return (
         <div className='h-[100vh]'>
             <UserOptionsContainer
-                rooms={rooms}
+                rooms={tempRooms}
                 handleNewUser={handleNewUser}
             />
             {/* {users && */}
