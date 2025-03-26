@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
+import type { Rooms } from "@/lib/types";
 
-interface RoomUsers {
-    roomId: number;
-    usernames: string[];
-}
 
 export function useGetCurrentRooms() {
     const [rooms, setRooms] = useState<RoomUsers[]>([]);
@@ -23,7 +20,7 @@ export function useGetCurrentRooms() {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
 
-                const data: RoomUsers[] = await response.json();
+                const data: Rooms = await response.json();
                 setRooms(data);
             } catch (e: any) {
                 console.error("Error fetching rooms:", e);

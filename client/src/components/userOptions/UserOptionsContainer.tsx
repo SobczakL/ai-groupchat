@@ -20,6 +20,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type { Rooms } from "@/lib/types";
+import { useEffect, useState } from "react";
 
 const formSchema = z.object({
     userId: z.number(),
@@ -36,14 +37,26 @@ interface UserOptionsContainerProps {
 
 export default function UserOptionsContainer({ rooms, handleNewUser }: UserOptionsContainerProps) {
 
+    const [localRooms, setLocalRooms] = useState<Rooms>([])
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             userId: Date.now(),
-            roomId: 1,
+            roomId: 0,
             username: ""
         }
     })
+
+    useEffect(() => {
+        if (rooms && rooms.length > 0) {
+            setLocalRooms(rooms)
+
+            if (rooms.length > 0) {
+                form.setValue('roomId', rooms[0].roomId)
+            }
+        }
+    }, [rooms])
 
     const handleSubmit = (values: FormValues) => {
         handleNewUser(values)
@@ -81,9 +94,9 @@ export default function UserOptionsContainer({ rooms, handleNewUser }: UserOptio
                                     </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                    {rooms &&
-                                        rooms.map((room) => (
-                                            <SelectItem key={room.id} value={room.id.toString()}>{room.name}</SelectItem>
+                                    {localRooms &&
+                                        localRooms.map((room) => (
+                                            <SelectItem key={room.roomId} value={room.roomId.toString()}>{room.roomId}</SelectItem>
                                         ))
                                     }
                                 </SelectContent>

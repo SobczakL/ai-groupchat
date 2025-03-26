@@ -14,7 +14,7 @@ function App() {
     useEffect(() => {
         console.log(isLoading)
         console.log(rooms)
-    }, [])
+    }, [isLoading, rooms])
 
     const tempRooms: Rooms = [
         { id: 1, name: "Room 1" },
@@ -34,7 +34,7 @@ function App() {
     return (
         <div className='h-[100vh]'>
             <UserOptionsContainer
-                rooms={tempRooms}
+                rooms={rooms}
                 handleNewUser={handleNewUser}
             />
             {/* {users && */}

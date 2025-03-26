@@ -1,7 +1,6 @@
 //User Options Types
 type Room = {
-    id: number;
-    name: string;
+    roomId: number;
 }
 export type Rooms = Room[]
 

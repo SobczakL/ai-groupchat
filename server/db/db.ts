@@ -21,13 +21,22 @@ export function initDatabase(): void {
     console.log('Database initialized')
 }
 
+//FIX:
+// function tableHelper(): void {
+//     const users = db.run('SELECT * FROM users')
+//     const rooms = db.run('SELECT * FROM rooms')
+//     console.table(users)
+//     console.table(rooms)
+// }
+
 export async function currentRooms(): Promise<RoomUsers[]> {
     try {
         const query = db.query(`
-            SELECT rooms.roomId, rooms.username
-            FROM rooms
+            SELECT rooms.roomId FROM rooms
         `)
         const rows = await query.all()
+        console.log(rows)
+        // tableHelper()
         return rows.map((row: any) => ({
             roomId: row.roomId as number,
             usernames: row.usernames ? (row.usernames as string).split(',') : []
@@ -47,6 +56,7 @@ export function washTable(): void {
     db.run('DELETE from rooms')
     console.log('user table washed')
 }
+
 
 //FIX:
 
