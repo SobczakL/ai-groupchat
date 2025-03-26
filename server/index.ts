@@ -10,7 +10,7 @@ import {
 } from './db/db'
 
 initDatabase()
-// washTable()
+washTable()
 
 
 const server = Bun.serve({
@@ -55,7 +55,7 @@ const server = Bun.serve({
 
             switch (messageData.type) {
                 case ("CHECK"):
-                    // washTable()
+                    console.log(typeof (messageData.payload.roomId))
                     addUser(messageData.payload.username, messageData.payload.roomId)
                     break;
                 case ("CHAT"):

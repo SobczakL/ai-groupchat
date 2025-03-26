@@ -4,19 +4,18 @@ import type { RoomUsers } from '../lib/types'
 const db = new Database('chatDb.sqlite', { create: true })
 export function initDatabase(): void {
 
-    // db.run(`
-    //     CREATE TABLE IF NOT EXISTS users (
-    //     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    //     username TEXT UNIQUE,
-    //     roomId INTERGER
-    //     )
-    // `)
-
     db.run(`
         CREATE TABLE IF NOT EXISTS rooms (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        roomId INTERGER,
-        username TEXT
+        roomId INTEGER PRIMARY KEY
+        )
+    `)
+
+    db.run(`
+        CREATE TABLE IF NOT EXISTS users (
+        username TEXT,
+        roomId INTEGER,
+        PRIMARY KEY (username, roomId),
+        FOREIGN KEY (roomId) REFERENCES rooms(roomId)
         )
     `)
     console.log('Database initialized')
@@ -45,6 +44,7 @@ export async function currentRooms(): Promise<RoomUsers[]> {
 // Temp func to clear existing table for testing
 export function washTable(): void {
     db.run('DELETE from users')
+    db.run('DELETE from rooms')
     console.log('user table washed')
 }
 
@@ -55,19 +55,29 @@ export function addUser(username: string, roomId: number): void {
     if (localRoomId === 0) {
         localRoomId = Math.floor(Math.random() * (999 - 100 + 1)) + 100;
     }
+    try {
+        const insertRoom = db.prepare(`
+            INSERT OR IGNORE INTO rooms (roomId) VALUES (?)
+        `);
+        insertRoom.run(localRoomId)
 
-    const insertUser = db.prepare(`
-        INSERT INTO rooms (roomId, username) VALUES (?, ?)
-        ON CONFLICT(username) DO NOTHING
-    `);
+        const insertUser = db.prepare(`
+            INSERT OR IGNORE INTO users (username, roomId) VALUES (?, ?)
+        `);
 
-    const insertInfo = insertUser.run(localRoomId, username);
-    if (insertInfo.changes > 0) {
-        console.log(`User ${username} added to room ${localRoomId}`);
+        const insertInfo = insertUser.run(username, localRoomId);
+        if (insertInfo.changes > 0) {
+            console.log(`User ${username} added to room ${localRoomId}`);
+        }
+        else {
+            console.log(`User ${username} already exists in room ${roomId}`)
+        }
+
     }
-    else {
-        console.log(`User ${username} already exists in room ${roomId}`)
+    catch (error) {
+        console.log(`Error adding user to room:`, error)
     }
+
 }
 
 // db.close()
