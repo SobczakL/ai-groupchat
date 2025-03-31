@@ -34,7 +34,7 @@ function App() {
     return (
         <div className='h-[100vh]'>
             <UserOptionsContainer
-                rooms={tempRooms}
+                rooms={rooms}
                 handleNewUser={handleNewUser}
             />
             {/* {users && */}

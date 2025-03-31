@@ -41,10 +41,12 @@ function tableHelper(): void {
 export async function currentRooms(): Promise<RoomUsers[]> {
     try {
         const query = db.query(`
-            SELECT roomId FROM rooms
+            SELECT DISTINCT roomId
+            FROM rooms
         `)
         const rows = await query.all()
-        tableHelper()
+        console.log(rows)
+        // tableHelper()
         return rows.map((row: any) => ({
             roomId: row.roomId as number,
             usernames: row.usernames ? (row.usernames as string).split(',') : []

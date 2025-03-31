@@ -43,7 +43,7 @@ export default function UserOptionsContainer({ rooms, handleNewUser }: UserOptio
         resolver: zodResolver(formSchema),
         defaultValues: {
             userId: Date.now(),
-            roomId: 0,
+            roomId: 1,
             username: ""
         }
     })
