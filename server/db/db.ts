@@ -45,7 +45,6 @@ export async function currentRooms(): Promise<RoomUsers[]> {
             FROM rooms
         `)
         const rows = await query.all()
-        console.log(rows)
         // tableHelper()
         return rows.map((row: any) => ({
             roomId: row.roomId as number,
@@ -59,7 +58,6 @@ export async function currentRooms(): Promise<RoomUsers[]> {
     }
 }
 
-//FIX:
 export function addUser(username: string, roomId: number): void {
     let localRoomId = roomId;
     if (localRoomId === 0) {

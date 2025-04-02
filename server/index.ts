@@ -54,8 +54,7 @@ const server = Bun.serve({
             const messageData = JSON.parse(data)
 
             switch (messageData.type) {
-                case ("CHECK"):
-                    console.log(typeof (messageData.payload.roomId))
+                case ("CREATE"):
                     addUser(messageData.payload.username, messageData.payload.roomId)
                     break;
                 case ("CHAT"):

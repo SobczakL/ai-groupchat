@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { User, WebSocketMessage } from "@/lib/types";
 
 interface MessageWindowProps {
     userDetails: User;
-    receievedMessages: (message: string) => void;
+    receivedMessages: (message: string) => void; // Corrected typo
+    allReceivedMessages: string[]; // Corrected typo
     sendMessage: (message: WebSocketMessage) => void;
 }
 
@@ -17,15 +18,33 @@ interface Message {
 
 export default function MessageWindow({
     userDetails,
-    receievedMessages,
+    receivedMessages,
+    allReceivedMessages,
     sendMessage
 }: MessageWindowProps) {
 
-    const textareaRef = useRef<HTMLTextAreaElement>(null)
-    const [messages, setMessages] = useState<Message[]>([])
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const [messages, setMessages] = useState<Message[]>([]);
 
-    const lastProcessedIndex = useRef(-1)
+    useEffect(() => {
+        setMessages(allReceivedMessages.map(msg => {
+            try {
+                const parsedMessage = JSON.parse(msg);
+                if (parsedMessage.type === "BROADCAST") {
+                    const userData = parsedMessage.payload;
+                    return {
+                        id: Date.now(),
+                        user: userData,
+                        message: userData.message,
+                    };
+                }
+            } catch (error) {
+                console.error("Error parsing message:", error);
+            }
+            return null;
 
+        }).filter(msg => msg !== null) as Message[]);
+    }, [allReceivedMessages]);
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -34,40 +53,22 @@ export default function MessageWindow({
         }
     };
 
-    useEffect(() => {
-        for (let i = lastProcessedIndex.current + 1; i < receievedMessages.length; i++) {
-            try {
-                const parsedMessage = JSON.parse(receievedMessages[i])
-                if (parsedMessage.type === "BROADCAST") {
-                    const userData = parsedMessage.payload
-                    setMessages(prev => [...prev, {
-                        id: Date.now(),
-                        user: userData.username,
-                        message: userData.message
-                    }])
-                }
-            }
-            catch (error) {
-                console.error("Error parsing message:", error)
-            }
-            lastProcessedIndex.current = i
-        }
-    }, [receievedMessages]);
-
     const handleUserMessage = () => {
         if (textareaRef.current && textareaRef.current.value.trim()) {
-            const newMessage = textareaRef.current.value
-            setMessages(prev => [...prev, {
+            const newMessage = textareaRef.current.value;
+            const messageObject: Message = {
                 id: Date.now(),
                 user: userDetails,
                 message: newMessage
-            }])
+            }
+
+            setMessages(prev => [...prev, messageObject]);
             const data: WebSocketMessage = {
                 "type": "BROADCAST",
                 "payload": { ...userDetails, message: newMessage }
             }
-            sendMessage(data)
-            textareaRef.current.value = ''
+            sendMessage(data);
+            textareaRef.current.value = '';
         }
     }
 

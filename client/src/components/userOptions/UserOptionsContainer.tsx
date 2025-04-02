@@ -59,6 +59,7 @@ export default function UserOptionsContainer({ rooms, handleNewUser }: UserOptio
     }, [rooms])
 
     const handleSubmit = (values: FormValues) => {
+        console.log(values)
         handleNewUser(values)
     }
 
@@ -72,7 +73,13 @@ export default function UserOptionsContainer({ rooms, handleNewUser }: UserOptio
                         <FormItem>
                             <FormLabel>Username</FormLabel>
                             <FormControl>
-                                <Input placeholder="User123" {...field} />
+                                <Input
+                                    placeholder="User123"
+                                    {...field}
+                                    onChange={field.onChange}
+                                    value={field.value || ''}
+                                    onBlur={field.onBlur}
+                                />
                             </FormControl>
                             <FormDescription>
                                 This is your public display name.

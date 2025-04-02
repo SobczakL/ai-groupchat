@@ -8,7 +8,7 @@ export type User = {
     userId: number;
     room: Room;
     username: string;
-    message: string;
+    message?: string;
 }
 
 //WebSocket Message Types

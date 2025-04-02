@@ -2,8 +2,12 @@ import { useEffect, useState, useCallback } from "react";
 import type { WebSocketMessage } from "@/lib/types";
 
 export default function useWebSocket() {
-    const [receivedMessages, setReceivedMessages] = useState<string[]>([]);
     const [ws, setWs] = useState<WebSocket | null>(null);
+    const [allReceivedMessages, setAllReceivedMessages] = useState<string[]>([]);
+
+    const handleReceivedMessages = useCallback((message: string) => {
+        setAllReceivedMessages(prev => [...prev, message])
+    }, [])
 
     useEffect(() => {
         console.log("WebSocket hook initializing");
@@ -28,14 +32,9 @@ export default function useWebSocket() {
             newWs.onmessage = (event: MessageEvent) => {
                 try {
                     const message: WebSocketMessage = JSON.parse(event.data)
-                    console.log("Received message: ", message)
 
                     if (message.type === "CHAT") {
-                        setReceivedMessages((prev) => {
-                            const safeArray = Array.isArray(prev) ? prev : [];
-                            const updated = [...safeArray, event.data];
-                            return updated;
-                        });
+                        handleReceivedMessages(event.data)
                     }
                 }
                 catch (error) {
@@ -52,11 +51,10 @@ export default function useWebSocket() {
             console.error("Error setting up WebSocket:", error);
             return;
         }
-    }, []);
+    }, [handleReceivedMessages]);
 
     const sendMessage = useCallback((data: WebSocketMessage) => {
         if (ws && ws.readyState === WebSocket.OPEN) {
-            console.log(JSON.stringify(data))
             ws.send(JSON.stringify(data));
         } else {
             console.error('WebSocket connection not open');
@@ -64,7 +62,8 @@ export default function useWebSocket() {
     }, [ws]);
 
     return {
-        receivedMessages,
+        receivedMessages: handleReceivedMessages,
+        allReceivedMessages,
         ws,
         sendMessage
     };
