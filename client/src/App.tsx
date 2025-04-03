@@ -11,10 +11,10 @@ function App() {
     const { rooms, isLoading, error } = useGetCurrentRooms()
     const [users, setUsers] = useState<User[]>([])
 
-    // useEffect(() => {
-    //     console.log(isLoading)
-    //     console.log(rooms)
-    // }, [isLoading, rooms])
+    useEffect(() => {
+        console.log(isLoading)
+        console.log(rooms)
+    }, [isLoading, rooms])
 
 
     const handleNewUser = (newUser) => {
@@ -26,28 +26,24 @@ function App() {
         sendMessage(data)
     }
 
-    useEffect(() => {
-        console.log(users)
-    }, [users])
-
     return (
         <div className='h-[100vh]'>
             <UserOptionsContainer
                 rooms={rooms}
                 handleNewUser={handleNewUser}
             />
-            {users && users.length > 0 ? (
-                users.map((user) => (
-                    <MessageWindow
-                        key={user.userId}
-                        userDetails={user}
-                        receivedMessages={receivedMessages}
-                        allReceivedMessages={allReceivedMessages}
-                        sendMessage={sendMessage}
-                    />
-                ))
-            ) : null
-            }
+            {/* {rooms.length > 0 ? ( */}
+            {/*     rooms.usernames.map((user, index) => ( */}
+            {/*         <MessageWindow */}
+            {/*             key={user.index} */}
+            {/*             userDetails={user} */}
+            {/*             receivedMessages={receivedMessages} */}
+            {/*             allReceivedMessages={allReceivedMessages} */}
+            {/*             sendMessage={sendMessage} */}
+            {/*         /> */}
+            {/*     )) */}
+            {/* ) : null */}
+            {/* } */}
         </div>
     );
 }

@@ -1,14 +1,8 @@
 import { Database } from 'bun:sqlite'
-import type { RoomUsers } from '../lib/types'
+import type { RoomUsers, User } from '../lib/types'
 
 const db = new Database('chatDb.sqlite', { create: true })
 export function initDatabase(): void {
-
-    db.run(`
-        CREATE TABLE IF NOT EXISTS rooms (
-        roomId INTEGER PRIMARY KEY
-        )
-    `)
 
     db.run(`
         CREATE TABLE IF NOT EXISTS users (
@@ -25,7 +19,6 @@ export function initDatabase(): void {
 // Temp func to clear existing table for testing
 export function washTable(): void {
     db.run('DELETE from users')
-    db.run('DELETE from rooms')
     console.log('user table washed')
 }
 
@@ -33,16 +26,14 @@ export function washTable(): void {
 //temp func for testing
 function tableHelper(): void {
     const users = db.query('SELECT username FROM users')
-    const rooms = db.query('SELECT roomId FROM rooms')
     console.log(users.all())
-    console.log(rooms.all())
 }
 
 export async function currentRooms(): Promise<RoomUsers[]> {
     try {
         const query = db.query(`
             SELECT DISTINCT roomId
-            FROM rooms
+            FROM users
         `)
         const rows = await query.all()
         // tableHelper()
@@ -69,6 +60,20 @@ export function addUser(username: string, roomId: number): void {
         `);
         insertRoom.run(localRoomId)
 
+        //NOTE:
+        //check if user already is assigned a room
+        const queryUsers = db.query(`
+            SELECT * FROM users
+        `)
+        const currentUserPreferences = queryUsers.all()
+        const checkCurrentUser = currentUserPreferences.filter((user) => user.username == username)
+        if (checkCurrentUser.roomId !== localRoomId) {
+            db.query(`
+                UPDATE users
+                SET roomId = 'localRoomId'
+                WHERE username = 'checkCurrentUser.username'
+            `)
+        }
         const insertUser = db.prepare(`
             INSERT OR IGNORE INTO users (username, roomId) VALUES (?, ?)
         `);
@@ -85,7 +90,6 @@ export function addUser(username: string, roomId: number): void {
     catch (error) {
         console.log(`Error adding user to room:`, error)
     }
-
 }
 
 // db.close()
