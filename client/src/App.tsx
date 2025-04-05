@@ -3,22 +3,28 @@ import { useEffect, useState } from 'react';
 import useWebSocket from './hooks/useWebSocket';
 import MessageWindow from './components/messageWindow/MessageWindow';
 import UserOptionsContainer from './components/userOptions/UserOptionsContainer';
-import { useGetCurrentRooms } from './hooks/useGetCurrentRooms';
+import { useGetCurrentUsers } from './hooks/useGetCurrentUsers';
 import { User } from './lib/types';
 
 function App() {
     const { receivedMessages, allReceivedMessages, ws, sendMessage } = useWebSocket();
-    const { rooms, isLoading, error } = useGetCurrentRooms()
-    const [users, setUsers] = useState<User[]>([])
+    const { users, isLoading, error } = useGetCurrentUsers()
+    const [localUsers, setLocalUsers] = useState<User[]>([])
 
     useEffect(() => {
         console.log(isLoading)
-        console.log(rooms)
-    }, [isLoading, rooms])
+        console.log(users)
+    }, [isLoading, users])
+
+    const roomOptions = [
+        { roomId: 1 },
+        { roomId: 2 },
+        { roomId: 3 }
+    ]
 
 
     const handleNewUser = (newUser) => {
-        setUsers(prevUsers => [newUser, ...prevUsers])
+        setLocalUsers(prevUsers => [newUser, ...prevUsers])
         const data = {
             "type": "CREATE",
             "payload": newUser
@@ -29,10 +35,10 @@ function App() {
     return (
         <div className='h-[100vh]'>
             <UserOptionsContainer
-                rooms={rooms}
+                rooms={roomOptions}
                 handleNewUser={handleNewUser}
             />
-            {/* {rooms.length > 0 ? ( */}
+            {/* {!isLoading ? ( */}
             {/*     rooms.usernames.map((user, index) => ( */}
             {/*         <MessageWindow */}
             {/*             key={user.index} */}

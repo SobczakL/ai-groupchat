@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import type { Rooms } from "@/lib/types";
+import type { User } from "@/lib/types";
 
 
-export function useGetCurrentRooms() {
-    const [rooms, setRooms] = useState<RoomUsers[]>([]);
+export function useGetCurrentUsers() {
+    const [users, setUsers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const endpoint = "http://localhost:3000/rooms";
@@ -20,8 +20,8 @@ export function useGetCurrentRooms() {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
 
-                const data: Rooms = await response.json();
-                setRooms(data);
+                const data: User[] = await response.json();
+                setUsers(data);
             } catch (e: any) {
                 console.error("Error fetching rooms:", e);
                 setError(e.message || "An unexpected error occurred");
@@ -33,5 +33,5 @@ export function useGetCurrentRooms() {
         fetchData();
     }, [endpoint]);
 
-    return { rooms, isLoading, error };
+    return { users, isLoading, error };
 }

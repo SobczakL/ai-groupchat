@@ -11,6 +11,8 @@ export type User = {
     message?: string;
 }
 
+export type Users = User[]
+
 //WebSocket Message Types
 type ChatMessagePayload = {
     user: User;

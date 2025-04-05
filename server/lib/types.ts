@@ -21,12 +21,12 @@ export interface RoomUsers {
 // }
 // export type Rooms = Room[]
 //
-// export type User = {
-//     userID: number;
-//     room: Room;
-//     username: string;
-//     message: string;
-// }
+export type User = {
+    userId: number;
+    roomId: number;
+    username: string;
+    message?: string;
+}
 //
 // export type WebSocketMessage = {
 //     type: string;
