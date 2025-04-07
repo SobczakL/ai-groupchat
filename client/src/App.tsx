@@ -16,6 +16,8 @@ function App() {
         console.log(users)
     }, [isLoading, users])
 
+    //FIX:
+    //change to a dial of rooms
     const roomOptions = [
         { roomId: 1 },
         { roomId: 2 },

@@ -11,8 +11,6 @@ export type User = {
     message?: string;
 }
 
-export type Users = User[]
-
 //WebSocket Message Types
 type ChatMessagePayload = {
     user: User;
@@ -30,6 +28,6 @@ type WebSocketPayload =
     | any;
 
 export type WebSocketMessage = {
-    type: "SERVER" | "CHECK" | "CHAT" | string;
+    type: "SERVER" | "CREATE" | "CHAT" | string;
     payload: WebSocketPayload;
 };
