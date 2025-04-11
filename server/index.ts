@@ -58,23 +58,28 @@ const server = Bun.serve({
                     addUser(messageData.payload.username, messageData.payload.roomId)
                     break;
                 case ("CHAT"):
-                    const response = await llmChatExchange(messageData.payload.message)
-                    try {
-                        if (response) {
-                            ws.send(JSON.stringify({
-                                type: "CHAT",
-                                response: response
-                            }))
-                        }
-                        else {
-                            console.log("error no response")
-                        }
-                    }
-                    catch (error) {
-                        console.error(`Error in function llmChatExchange: ${error}`)
-                        return `Error: ${error}`
-
-                    }
+                    console.log(messageData.payload.message)
+                    ws.send(JSON.stringify({
+                        type: "CHAT",
+                        response: "hi from server"
+                    }))
+                    // const response = await llmChatExchange(messageData.payload.message)
+                    // try {
+                    //     if (response) {
+                    //         ws.send(JSON.stringify({
+                    //             type: "CHAT",
+                    //             response: response
+                    //         }))
+                    //     }
+                    //     else {
+                    //         console.log("error no response")
+                    //     }
+                    // }
+                    // catch (error) {
+                    //     console.error(`Error in function llmChatExchange: ${error}`)
+                    //     return `Error: ${error}`
+                    //
+                    // }
                     break;
             }
         },

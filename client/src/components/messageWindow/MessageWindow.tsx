@@ -5,8 +5,8 @@ import { User, WebSocketMessage } from "@/lib/types";
 
 interface MessageWindowProps {
     userDetails: User;
-    receivedMessages: (message: string) => void; // Corrected typo
-    allReceivedMessages: string[]; // Corrected typo
+    receivedMessages: (message: string) => void
+    allReceivedMessages: string[];
     sendMessage: (message: WebSocketMessage) => void;
 }
 
@@ -30,8 +30,11 @@ export default function MessageWindow({
         setMessages(allReceivedMessages.map(msg => {
             try {
                 const parsedMessage = JSON.parse(msg);
-                if (parsedMessage.type === "BROADCAST") {
+                console.log(parsedMessage)
+                if (parsedMessage.type === "CHAT") {
                     const userData = parsedMessage.payload;
+                    //FIX:
+                    //alter to handle llm messaging and user messages
                     return {
                         id: Date.now(),
                         user: userData,
@@ -64,7 +67,7 @@ export default function MessageWindow({
 
             setMessages(prev => [...prev, messageObject]);
             const data: WebSocketMessage = {
-                "type": "BROADCAST",
+                "type": "CHAT",
                 "payload": { ...userDetails, message: newMessage }
             }
             sendMessage(data);
