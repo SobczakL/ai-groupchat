@@ -11,6 +11,12 @@ export type User = {
     message?: string;
 }
 
+export type CurrentUsers = {
+    users: User[];
+    loading: boolean;
+    error: string | null;
+}
+
 //WebSocket Message Types
 type ChatMessagePayload = {
     user: User;

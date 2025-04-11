@@ -8,30 +8,26 @@ export function useGetCurrentUsers() {
     const [error, setError] = useState<string | null>(null);
     const endpoint = "http://localhost:3000/rooms";
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setIsLoading(true);
-            setError(null);
+    const fetchUserData = async () => {
+        setIsLoading(true);
+        setError(null);
 
-            try {
-                const response = await fetch(endpoint);
+        try {
+            const response = await fetch(endpoint);
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-
-                const data: User[] = await response.json();
-                setUsers(data);
-            } catch (e: any) {
-                console.error("Error fetching rooms:", e);
-                setError(e.message || "An unexpected error occurred");
-            } finally {
-                setIsLoading(false);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
             }
-        };
 
-        fetchData();
-    }, [endpoint]);
+            const data: User[] = await response.json();
+            setUsers(data);
+        } catch (e: any) {
+            console.error("Error fetching rooms:", e);
+            setError(e.message || "An unexpected error occurred");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-    return { users, isLoading, error };
+    return { users, isLoading, error, fetchUserData };
 }
