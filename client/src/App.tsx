@@ -1,15 +1,16 @@
 import './App.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useWebSocket from './hooks/useWebSocket';
 import MessageWindow from './components/messageWindow/MessageWindow';
 import UserOptionsContainer from './components/userOptions/UserOptionsContainer';
 import { useGetCurrentUsers } from './hooks/useGetCurrentUsers';
-import { CurrentUsers, User } from './lib/types';
+import { CurrentUsers } from './lib/types';
 
 function App() {
     const { receivedMessages, allReceivedMessages, ws, sendMessage } = useWebSocket();
     const { users, isLoading, error, fetchUserData } = useGetCurrentUsers()
     const [currentUsers, setCurrentUsers] = useState<CurrentUsers>({ users: [], loading: false, error: null })
+    const selectedRoom = useRef(null)
 
     useEffect(() => {
         setCurrentUsers({
@@ -17,6 +18,7 @@ function App() {
             loading: isLoading,
             error: error
         })
+        //FIX:
         console.log(users)
     }, [users, isLoading, error])
 
@@ -30,6 +32,7 @@ function App() {
 
 
     const handleNewUser = (newUser) => {
+        selectedRoom.current = newUser.roomId
         const data = {
             "type": "CREATE",
             "payload": newUser
@@ -44,17 +47,23 @@ function App() {
                 rooms={roomOptions}
                 handleNewUser={handleNewUser}
             />
-            {!isLoading ? (
-                currentUsers.users.map((user, index) => (
-                    <MessageWindow
-                        key={index}
-                        userDetails={user}
-                        receivedMessages={receivedMessages}
-                        allReceivedMessages={allReceivedMessages}
-                        sendMessage={sendMessage}
-                    />
-                ))
-            ) : null
+            {
+                !isLoading
+                    ? currentUsers.users.map((user, index) => {
+                        if (user.roomId === selectedRoom.current) {
+                            return (
+                                <MessageWindow
+                                    key={index}
+                                    userDetails={user}
+                                    receivedMessages={receivedMessages}
+                                    allReceivedMessages={allReceivedMessages}
+                                    sendMessage={sendMessage}
+                                />
+                            );
+                        }
+                        return null;
+                    })
+                    : null
             }
         </div>
     );
