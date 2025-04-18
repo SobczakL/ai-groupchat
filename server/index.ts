@@ -52,16 +52,21 @@ const server = Bun.serve({
         ...websocketHandlers,
         message: async (ws: ServerWebSocket, data: string) => {
             const messageData = JSON.parse(data)
+            console.log("message on server:", messageData)
 
             switch (messageData.type) {
-                case ("CREATE"):
+                case ("create"):
                     addUser(messageData.payload.username, messageData.payload.roomId)
                     break;
-                case ("CHAT"):
+                case ("chat"):
                     console.log(messageData.payload.message)
                     ws.send(JSON.stringify({
-                        type: "CHAT",
-                        response: "hi from server"
+                        type: "chat",
+                        data: {
+                            username: "server",
+                            roomId: messageData.payload.roomId,
+                            message: "hi from server"
+                        }
                     }))
                     // const response = await llmChatExchange(messageData.payload.message)
                     // try {

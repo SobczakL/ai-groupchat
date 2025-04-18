@@ -33,7 +33,19 @@ type WebSocketPayload =
     | UpdateUserPayload
     | any;
 
+type PayloadData = {
+    username: string;
+    room: number;
+    message: string;
+    timestamp: Date;
+}
+
+export type MessageData = {
+    type: "create" | "chat" | string;
+    payload: PayloadData;
+}
+
 export type WebSocketMessage = {
-    type: "SERVER" | "CREATE" | "CHAT" | string;
+    type: "server_chat" | "user_create" | "user_chat" | string;
     payload: WebSocketPayload;
 };

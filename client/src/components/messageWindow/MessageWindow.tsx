@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
-import { User, WebSocketMessage } from "@/lib/types";
+import { User, MessageData } from "@/lib/types";
 
 interface MessageWindowProps {
     userDetails: User;
     receivedMessages: (message: string) => void
     allReceivedMessages: string[];
-    sendMessage: (message: WebSocketMessage) => void;
+    sendMessage: (message: MessageData) => void;
 }
 
 interface Message {
@@ -31,8 +31,9 @@ export default function MessageWindow({
             try {
                 const parsedMessage = JSON.parse(msg);
                 console.log(parsedMessage)
-                if (parsedMessage.type === "CHAT") {
+                if (parsedMessage.type === "chat") {
                     const userData = parsedMessage.payload;
+                    console.log(userData)
                     //FIX:
                     //alter to handle llm messaging and user messages
                     return {
@@ -67,7 +68,7 @@ export default function MessageWindow({
 
             setMessages(prev => [...prev, messageObject]);
             const data: WebSocketMessage = {
-                "type": "CHAT",
+                "type": "chat",
                 "payload": { ...userDetails, message: newMessage }
             }
             sendMessage(data);

@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import type { WebSocketMessage } from "@/lib/types";
+import type { MessageData } from "@/lib/types";
 
 export default function useWebSocket() {
     const [ws, setWs] = useState<WebSocket | null>(null);
@@ -31,9 +31,9 @@ export default function useWebSocket() {
 
             newWs.onmessage = (event: MessageEvent) => {
                 try {
-                    const message: WebSocketMessage = JSON.parse(event.data)
+                    const message: MessageData = JSON.parse(event.data)
 
-                    if (message.type === "CHAT") {
+                    if (message.type === "user_chat" || message.type === "server_chat") {
                         handleReceivedMessages(event.data)
                     }
                 }
@@ -53,7 +53,7 @@ export default function useWebSocket() {
         }
     }, [handleReceivedMessages]);
 
-    const sendMessage = useCallback((data: WebSocketMessage) => {
+    const sendMessage = useCallback((data: MessageData) => {
         if (ws && ws.readyState === WebSocket.OPEN) {
             ws.send(JSON.stringify(data));
         } else {
