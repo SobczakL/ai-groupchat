@@ -52,14 +52,13 @@ const server = Bun.serve({
         ...websocketHandlers,
         message: async (ws: ServerWebSocket, data: string) => {
             const messageData = JSON.parse(data)
-            console.log("message on server:", messageData)
 
             switch (messageData.type) {
                 case ("create"):
                     addUser(messageData.payload.username, messageData.payload.roomId)
                     break;
                 case ("chat"):
-                    console.log(messageData.payload.message)
+                    console.log("message came to case", messageData.payload.message)
                     ws.send(JSON.stringify({
                         type: "chat",
                         data: {

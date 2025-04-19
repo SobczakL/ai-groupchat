@@ -27,6 +27,8 @@ export default function MessageWindow({
     const [messages, setMessages] = useState<Message[]>([]);
 
     useEffect(() => {
+        console.log(receivedMessages)
+        console.log(allReceivedMessages)
         setMessages(allReceivedMessages.map(msg => {
             try {
                 const parsedMessage = JSON.parse(msg);
@@ -58,6 +60,7 @@ export default function MessageWindow({
     };
 
     const handleUserMessage = () => {
+        console.log("user details in message window", userDetails)
         if (textareaRef.current && textareaRef.current.value.trim()) {
             const newMessage = textareaRef.current.value;
             const messageObject: Message = {
@@ -67,9 +70,9 @@ export default function MessageWindow({
             }
 
             setMessages(prev => [...prev, messageObject]);
-            const data: WebSocketMessage = {
+            const data: MessageData = {
                 "type": "chat",
-                "payload": { ...userDetails, message: newMessage }
+                "data": { ...userDetails, message: newMessage }
             }
             sendMessage(data);
             textareaRef.current.value = '';
