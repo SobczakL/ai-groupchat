@@ -2,14 +2,13 @@ import { websocketHandlers } from "./chatSocket/handler"
 import type { WebSocketMessage } from "./lib/types";
 import { llmChatExchange } from "./llm/llm"
 import type { ServerWebSocket } from "bun";
+import dbInstance from "./db/db";
 import {
-    currentRooms,
     washTable,
     initDatabase,
-    addUser,
 } from './db/db'
+import { currentRoomUsers, addNewUser } from "./routes/user"
 
-initDatabase()
 // washTable()
 
 
@@ -26,9 +25,9 @@ const server = Bun.serve({
             }
             return new Response("Upgrade failed:", { status: 500, headers });
         }
-        if (url.pathname === '/rooms') {
+        if (url.pathname === '/user' && req.method === "GET") {
             try {
-                const rooms = await currentRooms()
+                const rooms = await currentRoomUsers()
 
                 return new Response(JSON.stringify(rooms), {
                     headers,
@@ -45,6 +44,11 @@ const server = Bun.serve({
                 );
             }
 
+        }
+        if (url.pathname === '/user' && req.method === "POST") {
+            try {
+
+            }
         }
         return new Response("hello from server", { headers });
     },

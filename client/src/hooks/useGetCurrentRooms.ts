@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import type { User } from "@/lib/types";
 
-
-export function useGetCurrentUsers() {
+export function useGetCurrentRooms() {
     const [users, setUsers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);

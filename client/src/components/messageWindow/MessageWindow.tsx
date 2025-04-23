@@ -71,8 +71,12 @@ export default function MessageWindow({
 
             setMessages(prev => [...prev, messageObject]);
             const data: MessageData = {
-                "type": "chat",
-                "data": { ...userDetails, message: newMessage }
+                type: "chat",
+                data: {
+                    username: userDetails.username,
+                    room: userDetails.roomId,
+                    message: newMessage
+                }
             }
             sendMessage(data);
             textareaRef.current.value = '';

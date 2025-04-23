@@ -3,12 +3,12 @@ import { useEffect, useRef, useState } from 'react';
 import useWebSocket from './hooks/useWebSocket';
 import MessageWindow from './components/messageWindow/MessageWindow';
 import UserOptionsContainer from './components/userOptions/UserOptionsContainer';
-import { useGetCurrentUsers } from './hooks/useGetCurrentUsers';
+import { useGetCurrentRooms } from './hooks/useGetCurrentRooms';
 import { CurrentUsers } from './lib/types';
 
 function App() {
     const { receivedMessages, allReceivedMessages, ws, sendMessage } = useWebSocket();
-    const { users, isLoading, error, fetchUserData } = useGetCurrentUsers()
+    const { users, isLoading, error, fetchUserData } = useGetCurrentRooms()
     const [currentUsers, setCurrentUsers] = useState<CurrentUsers>({ users: [], loading: false, error: null })
     const selectedRoom = useRef(null)
 
