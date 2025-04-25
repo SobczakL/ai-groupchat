@@ -1,7 +1,7 @@
 import dbInstance from "../db/db";
 import type { RoomUsers } from "../lib/types";
 
-async function currentRoomUsers(): Promise<RoomUsers[]> {
+export async function currentRoomUsers(): Promise<RoomUsers[]> {
     try {
         const query = dbInstance.query(`
             SELECT username, roomId
@@ -22,7 +22,7 @@ async function currentRoomUsers(): Promise<RoomUsers[]> {
 
 }
 
-async function addNewUser(username: string, roomId: number): void {
+export async function addNewUser(username: string, roomId: number): void {
     let localRoomId = roomId;
     if (localRoomId === 0) {
         localRoomId = Math.floor(Math.random() * (999 - 100 + 1)) + 100;

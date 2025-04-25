@@ -5,12 +5,12 @@ import MessageWindow from './components/messageWindow/MessageWindow';
 import UserOptionsContainer from './components/userOptions/UserOptionsContainer';
 import { useGetCurrentRooms } from './hooks/useGetCurrentRooms';
 import { CurrentUsers } from './lib/types';
+import { AddUser } from './utils/Adduser';
 
 function App() {
     const { receivedMessages, allReceivedMessages, ws, sendMessage } = useWebSocket();
     const { users, isLoading, error, fetchUserData } = useGetCurrentRooms()
     const [currentUsers, setCurrentUsers] = useState<CurrentUsers>({ users: [], loading: false, error: null })
-    const selectedRoom = useRef(null)
 
     useEffect(() => {
         setCurrentUsers({
@@ -31,14 +31,17 @@ function App() {
     ]
 
 
-    const handleNewUser = (newUser) => {
-        selectedRoom.current = newUser.roomId
-        const data = {
-            "type": "CREATE",
-            "payload": newUser
+    const handleNewUser = async (newUser) => {
+        try {
+            console.log(selectedRoom.current)
+            await AddUser(newUser)
         }
-        sendMessage(data)
-        fetchUserData()
+        catch (error) {
+            console.log(error)
+        }
+        finally {
+            fetchUserData()
+        }
     }
 
     return (

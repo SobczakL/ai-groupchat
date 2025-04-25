@@ -43,11 +43,15 @@ const server = Bun.serve({
                     }
                 );
             }
-
         }
         if (url.pathname === '/user' && req.method === "POST") {
             try {
-
+                const data = await req.json()
+                console.log(data)
+                addNewUser(data.username, data.roomId)
+            }
+            catch (error) {
+                console.log(error)
             }
         }
         return new Response("hello from server", { headers });
@@ -56,42 +60,35 @@ const server = Bun.serve({
         ...websocketHandlers,
         message: async (ws: ServerWebSocket, data: string) => {
             const messageData = JSON.parse(data)
-
-            switch (messageData.type) {
-                case ("create"):
-                    addUser(messageData.payload.username, messageData.payload.roomId)
-                    break;
-                case ("chat"):
-                    console.log("message came to case", messageData.payload.message)
-                    ws.send(JSON.stringify({
-                        type: "chat",
-                        data: {
-                            username: "server",
-                            roomId: messageData.payload.roomId,
-                            message: "hi from server"
-                        }
-                    }))
-                    // const response = await llmChatExchange(messageData.payload.message)
-                    // try {
-                    //     if (response) {
-                    //         ws.send(JSON.stringify({
-                    //             type: "CHAT",
-                    //             response: response
-                    //         }))
-                    //     }
-                    //     else {
-                    //         console.log("error no response")
-                    //     }
-                    // }
-                    // catch (error) {
-                    //     console.error(`Error in function llmChatExchange: ${error}`)
-                    //     return `Error: ${error}`
-                    //
-                    // }
-                    break;
-            }
-        },
+            ws.send(JSON.stringify({
+                type: "chat",
+                data: {
+                    username: "server",
+                    roomId: messageData.payload.roomId,
+                    message: "hi from server"
+                }
+            }))
+            // const response = await llmChatExchange(messageData.payload.message)
+            // try {
+            //     if (response) {
+            //         ws.send(JSON.stringify({
+            //             type: "CHAT",
+            //             response: response
+            //         }))
+            //     }
+            //     else {
+            //         console.log("error no response")
+            //     }
+            // }
+            // catch (error) {
+            //     console.error(`Error in function llmChatExchange: ${error}`)
+            //     return `Error: ${error}`
+            //
+            // }
+            break;
+        }
     },
+},
 });
 
 console.log(`server listening on ${server.port}`)
