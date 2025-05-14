@@ -27,12 +27,12 @@ export default function MessageWindow({
     const [messages, setMessages] = useState<Message[]>([]);
 
     useEffect(() => {
-        console.log(receivedMessages)
-        console.log(allReceivedMessages)
+        //FIX:
+        // console.log(receivedMessages)
+        // console.log(allReceivedMessages)
         setMessages(allReceivedMessages.map(msg => {
             try {
                 const parsedMessage = JSON.parse(msg);
-                console.log(parsedMessage)
                 if (parsedMessage.type === "chat") {
                     const userData = parsedMessage.payload;
                     console.log(userData)
@@ -82,7 +82,6 @@ export default function MessageWindow({
             textareaRef.current.value = '';
         }
     }
-
     return (
         <div>
             <div>
@@ -100,6 +99,5 @@ export default function MessageWindow({
                 <Button onClick={handleUserMessage}>Send</Button>
             </div>
         </div>
-
     )
 }
