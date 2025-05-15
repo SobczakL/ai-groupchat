@@ -68,23 +68,24 @@ const server = Bun.serve({
                     message: "hi from server"
                 }
             }))
-            // const response = await llmChatExchange(messageData.payload.message)
-            // try {
-            //     if (response) {
-            //         ws.send(JSON.stringify({
-            //             type: "CHAT",
-            //             response: response
-            //         }))
-            //     }
-            //     else {
-            //         console.log("error no response")
-            //     }
-            // }
-            // catch (error) {
-            //     console.error(`Error in function llmChatExchange: ${error}`)
-            //     return `Error: ${error}`
-            //
-            // }
+            //FIX:
+            const response = await llmChatExchange(messageData.payload.message)
+            try {
+                if (response) {
+                    ws.send(JSON.stringify({
+                        type: "CHAT",
+                        response: response
+                    }))
+                }
+                else {
+                    console.log("error no response")
+                }
+            }
+            catch (error) {
+                console.error(`Error in function llmChatExchange: ${error}`)
+                return `Error: ${error}`
+
+            }
             break;
         }
     },
