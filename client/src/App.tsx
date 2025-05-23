@@ -11,6 +11,7 @@ function App() {
     const { receivedMessages, allReceivedMessages, ws, sendMessage } = useWebSocket();
     const { users, isLoading, error, fetchUserData } = useGetCurrentRooms()
     const [currentUsers, setCurrentUsers] = useState<CurrentUsers>({ users: [], loading: false, error: null })
+    const selectedRoom = useRef(null)
 
     useEffect(() => {
         setCurrentUsers({
@@ -33,8 +34,9 @@ function App() {
 
     const handleNewUser = async (newUser) => {
         try {
-            console.log(selectedRoom.current)
             await AddUser(newUser)
+            selectedRoom.current = newUser.roomId
+            console.log(newUser)
         }
         catch (error) {
             console.log(error)
