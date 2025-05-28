@@ -64,8 +64,9 @@ const server = Bun.serve({
                 type: "chat",
                 data: {
                     username: "server",
-                    roomId: messageData.payload.roomId,
-                    message: "hi from server"
+                    roomId: messageData.data.roomId,
+                    message: "hi from server",
+                    timestamp: Date.now()
                 }
             }))
             //FIX:

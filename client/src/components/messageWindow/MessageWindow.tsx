@@ -52,42 +52,38 @@ export default function MessageWindow({
         }).filter(msg => msg !== null) as Message[]);
     }, [allReceivedMessages]);
 
+
+    const handleUserMessage = () => {
+        console.log("user details in message window", userDetails)
+        if (textareaRef.current && textareaRef.current.value.trim()) {
+            const newMessage = textareaRef.current.value;
+
+            const messageData: MessageData = {
+                type: "chat",
+                data: {
+                    username: userDetails.username,
+                    room: userDetails.roomId,
+                    message: newMessage,
+                    timestamp: Date.now()
+                }
+            }
+            setMessages(prev => [...prev, messageData]);
+            sendMessage(messageData);
+            textareaRef.current.value = '';
+        }
+    }
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleUserMessage();
         }
     };
-
-    const handleUserMessage = () => {
-        console.log("user details in message window", userDetails)
-        if (textareaRef.current && textareaRef.current.value.trim()) {
-            const newMessage = textareaRef.current.value;
-            const messageObject: Message = {
-                id: Date.now(),
-                user: userDetails,
-                message: newMessage
-            }
-
-            setMessages(prev => [...prev, messageObject]);
-            const data: MessageData = {
-                type: "chat",
-                data: {
-                    username: userDetails.username,
-                    room: userDetails.roomId,
-                    message: newMessage
-                }
-            }
-            sendMessage(data);
-            textareaRef.current.value = '';
-        }
-    }
     return (
         <div>
             <div>
                 {messages &&
                     messages.map((message: Message) => (
-                        <p key={message.id}>{message.message}</p>
+                        <p key={message.data.timestamp}>{message.data.message}</p>
                     ))}
             </div>
             <div>
