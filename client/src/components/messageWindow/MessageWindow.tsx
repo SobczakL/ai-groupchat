@@ -28,8 +28,8 @@ export default function MessageWindow({
 
     useEffect(() => {
         //FIX:
-        // console.log(receivedMessages)
-        // console.log(allReceivedMessages)
+        console.log(receivedMessages)
+        console.log(allReceivedMessages)
         setMessages(allReceivedMessages.map(msg => {
             try {
                 const parsedMessage = JSON.parse(msg);
