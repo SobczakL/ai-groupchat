@@ -62,9 +62,9 @@ const server = Bun.serve({
             const messageData = JSON.parse(data)
             ws.send(JSON.stringify({
                 type: "chat",
-                data: {
+                payload: {
                     username: "LLM",
-                    roomId: messageData.data.roomId,
+                    roomId: messageData.payload.roomId,
                     message: "hi from server",
                     timestamp: Date.now()
                 }

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { User, MessageData } from "@/lib/types";
+import { timeStamp } from "console";
 
 interface MessageWindowProps {
     userDetails: User;
@@ -26,31 +27,38 @@ export default function MessageWindow({
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [messages, setMessages] = useState<Message[]>([]);
+    const [processedMessages, setProcessedMessages] = useState(0)
 
     useEffect(() => {
         //FIX:
         // console.log(receivedMessages)
-        // console.log(allReceivedMessages)
-        setMessages(allReceivedMessages.map(msg => {
-            try {
-                const parsedMessage = JSON.parse(msg);
-                if (parsedMessage.type === "chat") {
-                    const userData = parsedMessage.data;
-                    console.log(userData)
-                    //FIX:
-                    //alter to handle llm messaging and user messages
-                    return {
-                        id: Date.now(),
-                        user: userData,
-                        message: userData.message,
-                    };
+        console.log(allReceivedMessages)
+        const newMessages = allReceivedMessages
+            .slice(processedMessages)
+            .map(msg => {
+                try {
+                    const parsedMessage = JSON.parse(msg);
+                    if (parsedMessage.type === "chat") {
+                        const userData = parsedMessage.payload
+                        console.log(userData)
+                        //FIX:
+                        //alter to handle llm messaging and user messages
+                        return {
+                            id: Date.now() + Math.random(),
+                            user: userData,
+                            message: userData.message,
+                        };
+                    }
+                } catch (error) {
+                    console.error("Error parsing message:", error);
                 }
-            } catch (error) {
-                console.error("Error parsing message:", error);
-            }
-            return null;
+                return null;
 
-        }).filter(msg => msg !== null) as Message[]);
+            }).filter(msg => msg !== null) as Message[]
+        if (newMessages.length > 0) {
+            setMessages(prev => [...prev, ...newMessages])
+            setProcessedMessages(allReceivedMessages.length)
+        }
     }, [allReceivedMessages]);
 
 
@@ -60,16 +68,21 @@ export default function MessageWindow({
             const newMessage = textareaRef.current.value;
             console.log("newMessage sent", newMessage)
 
-            const messageData: MessageData = {
+            const userMessage: MessageData = {
                 type: "chat",
-                data: {
-                    username: userDetails.username,
+                payload: {
+                    id: Date.now() + Math.random(),
                     room: userDetails.roomId,
-                    message: newMessage
+                    username: userDetails.username,
+                    message: newMessage,
+                    timestamp: Date.now()
                 }
             }
-            sendMessage(messageData);
-            setMessages(prev => [...prev, messageData]);
+            console.log("userMessage", userMessage)
+            sendMessage(userMessage);
+            setMessages(prev => {
+                return [...prev, userMessage];
+            });
             textareaRef.current.value = '';
         }
     }
@@ -83,8 +96,8 @@ export default function MessageWindow({
         <div>
             <div>
                 {messages &&
-                    messages.map((message: Message) => (
-                        <p key={message.id}>{message.message}</p>
+                    messages.map((message: Message, index: number) => (
+                        <p key={index}>{message.message}</p>
                     ))}
             </div>
             <div>

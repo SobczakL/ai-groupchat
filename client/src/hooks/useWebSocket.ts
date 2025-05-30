@@ -1,21 +1,29 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import type { MessageData } from "@/lib/types";
 
 export default function useWebSocket() {
     const [ws, setWs] = useState<WebSocket | null>(null);
     const [allReceivedMessages, setAllReceivedMessages] = useState<string[]>([]);
 
+    //NOTE:
+    //weRef will prevent double firing setting incoming messages due to
+    //strict mode.
+    const wsRef = useRef<WebSocket | null>(null)
+
     const handleReceivedMessages = useCallback((message: string) => {
         setAllReceivedMessages(prev => [...prev, message])
     }, [])
 
     useEffect(() => {
+        if (wsRef.current) return
+
         console.log("WebSocket hook initializing");
         const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const wsUrl = `${wsProtocol}//localhost:3000/ws`;
 
         try {
             const newWs = new WebSocket(wsUrl);
+            wsRef.current = newWs
 
             newWs.onopen = () => {
                 console.log(`WebSocket connected`);
@@ -23,6 +31,7 @@ export default function useWebSocket() {
 
             newWs.onclose = () => {
                 console.log(`WebSocket closed`);
+                wsRef.current = null
             };
 
             newWs.onerror = (error) => {
@@ -46,12 +55,13 @@ export default function useWebSocket() {
 
             return () => {
                 newWs.close();
+                wsRef.current = null
             };
         } catch (error) {
             console.error("Error setting up WebSocket:", error);
             return;
         }
-    }, [handleReceivedMessages]);
+    }, []);
 
     const sendMessage = useCallback((data: MessageData) => {
         if (ws && ws.readyState === WebSocket.OPEN) {
