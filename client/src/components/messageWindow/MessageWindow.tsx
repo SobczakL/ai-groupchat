@@ -14,6 +14,7 @@ interface Message {
     id: number;
     user: User;
     message: string;
+    timestamp: number;
 }
 
 export default function MessageWindow({
@@ -28,13 +29,13 @@ export default function MessageWindow({
 
     useEffect(() => {
         //FIX:
-        console.log(receivedMessages)
-        console.log(allReceivedMessages)
+        // console.log(receivedMessages)
+        // console.log(allReceivedMessages)
         setMessages(allReceivedMessages.map(msg => {
             try {
                 const parsedMessage = JSON.parse(msg);
                 if (parsedMessage.type === "chat") {
-                    const userData = parsedMessage.payload;
+                    const userData = parsedMessage.data;
                     console.log(userData)
                     //FIX:
                     //alter to handle llm messaging and user messages
@@ -57,18 +58,18 @@ export default function MessageWindow({
         console.log("user details in message window", userDetails)
         if (textareaRef.current && textareaRef.current.value.trim()) {
             const newMessage = textareaRef.current.value;
+            console.log("newMessage sent", newMessage)
 
             const messageData: MessageData = {
                 type: "chat",
                 data: {
                     username: userDetails.username,
                     room: userDetails.roomId,
-                    message: newMessage,
-                    timestamp: Date.now()
+                    message: newMessage
                 }
             }
-            setMessages(prev => [...prev, messageData]);
             sendMessage(messageData);
+            setMessages(prev => [...prev, messageData]);
             textareaRef.current.value = '';
         }
     }
@@ -83,7 +84,7 @@ export default function MessageWindow({
             <div>
                 {messages &&
                     messages.map((message: Message) => (
-                        <p key={message.data.timestamp}>{message.data.message}</p>
+                        <p key={message.id}>{message.message}</p>
                     ))}
             </div>
             <div>

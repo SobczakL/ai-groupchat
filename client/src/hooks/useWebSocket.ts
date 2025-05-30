@@ -33,7 +33,7 @@ export default function useWebSocket() {
                 try {
                     const message: MessageData = JSON.parse(event.data)
 
-                    if (message.type === "user_chat" || message.type === "server_chat") {
+                    if (message.type === "chat" || message.type === "server_chat") {
                         handleReceivedMessages(event.data)
                     }
                 }
