@@ -3,15 +3,17 @@ import type { MessageData } from "@/lib/types";
 
 export default function useWebSocket() {
     const [ws, setWs] = useState<WebSocket | null>(null);
-    const [allReceivedMessages, setAllReceivedMessages] = useState<string[]>([]);
+    const [allReceivedMessages, setAllReceivedMessages] = useState<(MessageData | null)[]>([]);
 
     //NOTE:
     //weRef will prevent double firing setting incoming messages due to
     //strict mode.
     const wsRef = useRef<WebSocket | null>(null)
 
-    const handleReceivedMessages = useCallback((message: string) => {
-        setAllReceivedMessages(prev => [...prev, message])
+    const handleReceivedMessages = useCallback((message: MessageData | null) => {
+        if (message !== null) {
+            setAllReceivedMessages(prev => [...prev, message])
+        }
     }, [])
 
     useEffect(() => {
@@ -43,7 +45,8 @@ export default function useWebSocket() {
                     const message: MessageData = JSON.parse(event.data)
 
                     if (message.type === "chat" || message.type === "server_chat") {
-                        handleReceivedMessages(event.data)
+                        const parsedMessage = JSON.parse(event.data) as MessageData
+                        handleReceivedMessages(parsedMessage)
                     }
                 }
                 catch (error) {

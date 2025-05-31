@@ -11,12 +11,12 @@ interface MessageWindowProps {
     sendMessage: (message: MessageData) => void;
 }
 
-interface Message {
-    id: number;
-    user: User;
-    message: string;
-    timestamp: number;
-}
+// interface Message {
+//     id: number;
+//     user: User;
+//     message: string;
+//     timestamp: number;
+// }
 
 export default function MessageWindow({
     userDetails,
@@ -26,48 +26,20 @@ export default function MessageWindow({
 }: MessageWindowProps) {
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const [messages, setMessages] = useState<Message[]>([]);
+    const [messages, setMessages] = useState<MessageData[]>([]);
     const [processedMessages, setProcessedMessages] = useState(0)
 
     useEffect(() => {
-        //FIX:
-        // console.log(receivedMessages)
         console.log(allReceivedMessages)
-        const newMessages = allReceivedMessages
-            .slice(processedMessages)
-            .map(msg => {
-                try {
-                    const parsedMessage = JSON.parse(msg);
-                    if (parsedMessage.type === "chat") {
-                        const userData = parsedMessage.payload
-                        console.log(userData)
-                        //FIX:
-                        //alter to handle llm messaging and user messages
-                        return {
-                            id: Date.now() + Math.random(),
-                            user: userData,
-                            message: userData.message,
-                        };
-                    }
-                } catch (error) {
-                    console.error("Error parsing message:", error);
-                }
-                return null;
-
-            }).filter(msg => msg !== null) as Message[]
-        if (newMessages.length > 0) {
-            setMessages(prev => [...prev, ...newMessages])
-            setProcessedMessages(allReceivedMessages.length)
-        }
+        const newMessages = allReceivedMessages.slice(processedMessages)
+        setMessages(prev => [...prev, ...newMessages])
+        setProcessedMessages(allReceivedMessages.length)
     }, [allReceivedMessages]);
 
 
     const handleUserMessage = () => {
-        console.log("user details in message window", userDetails)
         if (textareaRef.current && textareaRef.current.value.trim()) {
             const newMessage = textareaRef.current.value;
-            console.log("newMessage sent", newMessage)
-
             const userMessage: MessageData = {
                 type: "chat",
                 payload: {
@@ -78,7 +50,6 @@ export default function MessageWindow({
                     timestamp: Date.now()
                 }
             }
-            console.log("userMessage", userMessage)
             sendMessage(userMessage);
             setMessages(prev => {
                 return [...prev, userMessage];
@@ -97,7 +68,7 @@ export default function MessageWindow({
             <div>
                 {messages &&
                     messages.map((message: Message, index: number) => (
-                        <p key={index}>{message.message}</p>
+                        <p key={index}>{message.payload.message}</p>
                     ))}
             </div>
             <div>
