@@ -1,9 +1,10 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import type { MessageData } from "@/lib/types";
 
-export default function useWebSocket() {
+export default function useWebSocket({ userDetails }) {
     const [ws, setWs] = useState<WebSocket | null>(null);
     const [allReceivedMessages, setAllReceivedMessages] = useState<(MessageData | null)[]>([]);
+    console.log("userDetails at start WebSocket", userDetails)
 
     //NOTE:
     //weRef will prevent double firing setting incoming messages due to
@@ -17,14 +18,26 @@ export default function useWebSocket() {
     }, [])
 
     useEffect(() => {
+        //FIX:
+        //race condition with userdetails
+        if (!userDetails | !userDetails.userId | !userDetails.roomId | !userDetails.username) {
+            console.log("userDetails is not ready:", userDetails)
+            return
+        }
         if (wsRef.current) return
+        console.log("userdetails inside socket", userDetails)
 
         console.log("WebSocket hook initializing");
         const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${wsProtocol}//localhost:3000/ws`;
+        const params = new URLSearchParams({
+            userId: userDetails.userId,
+            roomId: userDetails.roomId,
+            username: userDetails.username
+        })
+        const wsUrl = `${wsProtocol}//localhost:3000/ws?${params}`;
 
         try {
-            const newWs = new WebSocket(wsUrl);
+            const newWs = new WebSocket(wsUrl)
             wsRef.current = newWs
 
             newWs.onopen = () => {
@@ -64,7 +77,7 @@ export default function useWebSocket() {
             console.error("Error setting up WebSocket:", error);
             return;
         }
-    }, []);
+    }, [userDetails]);
 
     const sendMessage = useCallback((data: MessageData) => {
         if (ws && ws.readyState === WebSocket.OPEN) {

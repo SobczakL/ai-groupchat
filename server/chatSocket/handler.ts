@@ -18,7 +18,7 @@ export function handleWebSocket() {
 
 export const websocketHandlers: WebSocketHandlers = {
     open(ws) {
-        console.log("WebSocket connection opened")
+        console.log("WebSocket connection opened", ws)
         ws.send("Welcome to the WebSocket server")
     },
     message(ws, message) {

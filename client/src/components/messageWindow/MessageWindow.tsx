@@ -1,15 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
+import useWebSocket from "@/hooks/useWebSocket";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
-import { User, MessageData } from "@/lib/types";
-import { timeStamp } from "console";
+import { MessageData } from "@/lib/types";
 
-interface MessageWindowProps {
-    userDetails: User;
-    receivedMessages: (message: string) => void
-    allReceivedMessages: string[];
-    sendMessage: (message: MessageData) => void;
-}
+// interface MessageWindowProps {
+//     userDetails: User;
+//     receivedMessages: (message: string) => void
+//     allReceivedMessages: string[];
+//     sendMessage: (message: MessageData) => void;
+// }
 
 // interface Message {
 //     id: number;
@@ -18,13 +18,16 @@ interface MessageWindowProps {
 //     timestamp: number;
 // }
 
-export default function MessageWindow({
-    userDetails,
-    receivedMessages,
-    allReceivedMessages,
-    sendMessage
-}: MessageWindowProps) {
+// export default function MessageWindow({
+//     userDetails,
+//     receivedMessages,
+//     allReceivedMessages,
+//     sendMessage
+// }: MessageWindowProps) {
+export default function MessageWindow({ userDetails }) {
 
+    console.log("userdetails at start message window", userDetails)
+    const { receivedMessages, allReceivedMessages, ws, sendMessage } = useWebSocket(userDetails);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [messages, setMessages] = useState<MessageData[]>([]);
     const [processedMessages, setProcessedMessages] = useState(0)
@@ -67,7 +70,7 @@ export default function MessageWindow({
         <div>
             <div>
                 {messages &&
-                    messages.map((message: Message, index: number) => (
+                    messages.map((message: MessageData, index: number) => (
                         <p key={index}>{message.payload.message}</p>
                     ))}
             </div>

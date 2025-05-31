@@ -5,9 +5,10 @@ export function initDatabase(): void {
 
     db.run(`
         CREATE TABLE IF NOT EXISTS users (
-        username TEXT,
+        userId INTEGER,
         roomId INTEGER,
-        PRIMARY KEY (username, roomId),
+        username TEXT,
+        PRIMARY KEY (userId, roomId, username),
         FOREIGN KEY (roomId) REFERENCES rooms(roomId)
         )
     `)
@@ -33,7 +34,7 @@ export function washTable(): void {
 
 //NOTE:
 //temp func for testing
-function tableHelper(): void {
+export function tableHelper(): void {
     const users = db.query('SELECT * FROM users')
     console.log(users.all())
 }

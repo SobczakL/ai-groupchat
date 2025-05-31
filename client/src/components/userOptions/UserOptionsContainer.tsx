@@ -62,7 +62,7 @@ export default function UserOptionsContainer({ rooms, handleNewUser }: UserOptio
 
     const handleSubmit = (values: FormValues) => {
         handleNewUser(values)
-        console.log(values)
+        console.log("form values", values)
     }
 
     return (

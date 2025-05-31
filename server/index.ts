@@ -11,19 +11,29 @@ import { currentRoomUsers, addNewUser } from "./routes/user"
 
 // washTable()
 
-
-const server = Bun.serve({
+const server = Bun.serve<{
+    userId: number,
+    roomId: number,
+    username: string
+}>({
     port: 3000,
-    async fetch(req) {
+    async fetch(req, server) {
         const url = new URL(req.url);
         const headers = {
             "Access-Control-Allow-Origin": "*",
         };
+        //FIX:
+        //clean up the pathname logic
         if (url.pathname === "/ws") {
-            if (server.upgrade(req)) {
-                return;
+            const userParams = {
+                userId: url.searchParams.get('userId'),
+                roomId: url.searchParams.get('roomId'),
+                username: url.searchParams.get('username')
             }
-            return new Response("Upgrade failed:", { status: 500, headers });
+            const success = server.upgrade(req, { data: userParams })
+            return success
+                ? undefined
+                : new Response("WebSocket upgrade failed", { status: 400 })
         }
         if (url.pathname === '/user' && req.method === "GET") {
             try {
@@ -47,8 +57,7 @@ const server = Bun.serve({
         if (url.pathname === '/user' && req.method === "POST") {
             try {
                 const data = await req.json()
-                console.log(data)
-                addNewUser(data.username, data.roomId)
+                addNewUser(data.userId, data.roomId, data.username)
             }
             catch (error) {
                 console.log(error)

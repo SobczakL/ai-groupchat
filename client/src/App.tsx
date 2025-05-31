@@ -6,12 +6,12 @@ import UserOptionsContainer from './components/userOptions/UserOptionsContainer'
 import { useGetCurrentRooms } from './hooks/useGetCurrentRooms';
 import { CurrentUsers } from './lib/types';
 import { AddUser } from './utils/Adduser';
+import type { User } from './lib/types';
 
 function App() {
-    const { receivedMessages, allReceivedMessages, ws, sendMessage } = useWebSocket();
     const { users, isLoading, error, fetchUserData } = useGetCurrentRooms()
     const [currentUsers, setCurrentUsers] = useState<CurrentUsers>({ users: [], loading: false, error: null })
-    const selectedRoom = useRef(null)
+    const selectedRoom = useRef<(number | null)>(null)
 
     useEffect(() => {
         setCurrentUsers({
@@ -32,7 +32,7 @@ function App() {
     ]
 
 
-    const handleNewUser = async (newUser) => {
+    const handleNewUser = async (newUser: User) => {
         try {
             await AddUser(newUser)
             selectedRoom.current = newUser.roomId
@@ -55,14 +55,15 @@ function App() {
             {
                 !isLoading
                     ? currentUsers.users.map((user, index) => {
+                        console.log("user", user)
                         if (user.roomId === selectedRoom.current) {
                             return (
                                 <MessageWindow
                                     key={index}
                                     userDetails={user}
-                                    receivedMessages={receivedMessages}
-                                    allReceivedMessages={allReceivedMessages}
-                                    sendMessage={sendMessage}
+                                // receivedMessages={receivedMessages}
+                                // allReceivedMessages={allReceivedMessages}
+                                // sendMessage={sendMessage}
                                 />
                             );
                         }
