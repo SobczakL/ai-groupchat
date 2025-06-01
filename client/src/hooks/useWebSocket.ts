@@ -4,23 +4,16 @@ import type { MessageData } from "@/lib/types";
 export default function useWebSocket({ userDetails }) {
     const [ws, setWs] = useState<WebSocket | null>(null);
     const [allReceivedMessages, setAllReceivedMessages] = useState<(MessageData | null)[]>([]);
-    console.log("userDetails at start WebSocket", userDetails)
 
     //NOTE:
     //weRef will prevent double firing setting incoming messages due to
     //strict mode.
     const wsRef = useRef<WebSocket | null>(null)
 
-    const handleReceivedMessages = useCallback((message: MessageData | null) => {
-        if (message !== null) {
-            setAllReceivedMessages(prev => [...prev, message])
-        }
-    }, [])
-
     useEffect(() => {
         //FIX:
         //race condition with userdetails
-        if (!userDetails | !userDetails.userId | !userDetails.roomId | !userDetails.username) {
+        if (!userDetails || !userDetails.userId || !userDetails.roomId || !userDetails.username) {
             console.log("userDetails is not ready:", userDetails)
             return
         }
@@ -42,11 +35,13 @@ export default function useWebSocket({ userDetails }) {
 
             newWs.onopen = () => {
                 console.log(`WebSocket connected`);
+                setWs(newWs)
             };
 
             newWs.onclose = () => {
                 console.log(`WebSocket closed`);
                 wsRef.current = null
+                setWs(null)
             };
 
             newWs.onerror = (error) => {
@@ -56,10 +51,8 @@ export default function useWebSocket({ userDetails }) {
             newWs.onmessage = (event: MessageEvent) => {
                 try {
                     const message: MessageData = JSON.parse(event.data)
-
                     if (message.type === "chat" || message.type === "server_chat") {
-                        const parsedMessage = JSON.parse(event.data) as MessageData
-                        handleReceivedMessages(parsedMessage)
+                        setAllReceivedMessages(prev => [...prev, message])
                     }
                 }
                 catch (error) {
@@ -67,28 +60,31 @@ export default function useWebSocket({ userDetails }) {
                 }
             };
 
-            setWs(newWs);
-
             return () => {
-                newWs.close();
+                console.log("WebSocket cleanup: closing connection")
+                if (newWs.readyState === WebSocket.OPEN) {
+                    newWs.close();
+                }
                 wsRef.current = null
+                setWs(null)
             };
         } catch (error) {
             console.error("Error setting up WebSocket:", error);
-            return;
+            wsRef.current = null
+            setWs(null)
         }
     }, [userDetails]);
 
     const sendMessage = useCallback((data: MessageData) => {
-        if (ws && ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify(data));
+        if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+            wsRef.current.send(JSON.stringify(data));
         } else {
             console.error('WebSocket connection not open');
         }
-    }, [ws]);
+    }, []);
 
     return {
-        receivedMessages: handleReceivedMessages,
+        // receivedMessages: handleReceivedMessages,
         allReceivedMessages,
         ws,
         sendMessage
