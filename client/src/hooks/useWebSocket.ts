@@ -13,6 +13,7 @@ export default function useWebSocket({ userDetails }) {
     useEffect(() => {
         //FIX:
         //race condition with userdetails
+        //
         if (!userDetails || !userDetails.userId || !userDetails.roomId || !userDetails.username) {
             console.log("userDetails is not ready:", userDetails)
             return
