@@ -2,29 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import useWebSocket from "@/hooks/useWebSocket";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
-import { MessageData } from "@/lib/types";
+import { User, MessageData } from "@/lib/types";
 
-// interface MessageWindowProps {
-//     userDetails: User;
-//     receivedMessages: (message: string) => void
-//     allReceivedMessages: string[];
-//     sendMessage: (message: MessageData) => void;
-// }
+interface MessageWindowProps {
+    userDetails: User | null
 
-// interface Message {
-//     id: number;
-//     user: User;
-//     message: string;
-//     timestamp: number;
-// }
-
-// export default function MessageWindow({
-//     userDetails,
-//     receivedMessages,
-//     allReceivedMessages,
-//     sendMessage
-// }: MessageWindowProps) {
-export default function MessageWindow({ userDetails }) {
+}
+export default function MessageWindow({ userDetails }: MessageWindowProps) {
 
     console.log("userdetails at start message window", userDetails)
     const { receivedMessages, allReceivedMessages, ws, sendMessage } = useWebSocket(userDetails);

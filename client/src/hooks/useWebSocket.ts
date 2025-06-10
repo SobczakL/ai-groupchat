@@ -1,7 +1,13 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import type { MessageData } from "@/lib/types";
 
-export default function useWebSocket({ userDetails }) {
+interface UserDetailsProps {
+    userId: number;
+    roomId: number;
+    username: string;
+}
+
+export default function useWebSocket(userDetails: UserDetailsProps | null) {
     const [ws, setWs] = useState<WebSocket | null>(null);
     const [allReceivedMessages, setAllReceivedMessages] = useState<(MessageData | null)[]>([]);
 
@@ -10,10 +16,17 @@ export default function useWebSocket({ userDetails }) {
     //strict mode.
     const wsRef = useRef<WebSocket | null>(null)
 
+    // const handleReceivedMessages = useCallback((message: MessageData | null) => {
+    //     if (message !== null) {
+    //         setAllReceivedMessages(prev => [...prev, message])
+    //     }
+    // }, [])
+
     useEffect(() => {
         //FIX:
         //race condition with userdetails
-        //
+        console.group("WebSocket useEffect Cycle");
+        console.log("Current userDetails in useWebSocket:", userDetails);
         if (!userDetails || !userDetails.userId || !userDetails.roomId || !userDetails.username) {
             console.log("userDetails is not ready:", userDetails)
             return
@@ -66,6 +79,7 @@ export default function useWebSocket({ userDetails }) {
                 if (newWs.readyState === WebSocket.OPEN) {
                     newWs.close();
                 }
+                newWs.close();
                 wsRef.current = null
                 setWs(null)
             };
@@ -73,16 +87,17 @@ export default function useWebSocket({ userDetails }) {
             console.error("Error setting up WebSocket:", error);
             wsRef.current = null
             setWs(null)
+            return;
         }
     }, [userDetails]);
 
     const sendMessage = useCallback((data: MessageData) => {
-        if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-            wsRef.current.send(JSON.stringify(data));
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify(data));
         } else {
             console.error('WebSocket connection not open');
         }
-    }, []);
+    }, [userDetails]);
 
     return {
         // receivedMessages: handleReceivedMessages,

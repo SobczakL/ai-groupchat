@@ -12,9 +12,9 @@ import { currentRoomUsers, addNewUser } from "./routes/user"
 // washTable()
 
 const server = Bun.serve<{
-    userId: number,
-    roomId: number,
-    username: string
+    userId: number | null,
+    roomId: number | null,
+    username: string | null
 }>({
     port: 3000,
     async fetch(req, server) {
@@ -25,12 +25,15 @@ const server = Bun.serve<{
         //FIX:
         //clean up the pathname logic
         if (url.pathname === "/ws") {
-            const userParams = {
-                userId: url.searchParams.get('userId'),
-                roomId: url.searchParams.get('roomId'),
+            const parsedUserId = parseInt(url.searchParams.get('userId') || '', 10);
+            const parsedRoomId = parseInt(url.searchParams.get('roomId') || '', 10);
+            console.log(parsedUserId, parsedRoomId)
+            const userParamsForUpgrade = {
+                userId: isNaN(parsedUserId) ? null : parsedUserId,
+                roomId: isNaN(parsedRoomId) ? null : parsedRoomId,
                 username: url.searchParams.get('username')
-            }
-            const success = server.upgrade(req, { data: userParams })
+            };
+            const success = server.upgrade<typeof userParamsForUpgrade>(req, { data: userParamsForUpgrade })
             return success
                 ? undefined
                 : new Response("WebSocket upgrade failed", { status: 400 })
