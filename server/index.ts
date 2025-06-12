@@ -25,6 +25,7 @@ const server = Bun.serve<{
         //FIX:
         //clean up the pathname logic
         if (url.pathname === "/ws") {
+            console.log("here at ws endpoint")
             const parsedUserId = parseInt(url.searchParams.get('userId') || '', 10);
             const parsedRoomId = parseInt(url.searchParams.get('roomId') || '', 10);
             console.log(parsedUserId, parsedRoomId)
