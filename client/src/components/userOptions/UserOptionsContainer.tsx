@@ -20,7 +20,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type { Rooms } from "@/lib/types";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const formSchema = z.object({
     userId: z.number(),
@@ -38,6 +38,7 @@ interface UserOptionsContainerProps {
 export default function UserOptionsContainer({ rooms, handleNewUser }: UserOptionsContainerProps) {
 
     const [localRooms, setLocalRooms] = useState<Rooms>([])
+    const initialRoomId = useRef(false)
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -52,15 +53,16 @@ export default function UserOptionsContainer({ rooms, handleNewUser }: UserOptio
         if (rooms && rooms.length > 0) {
             setLocalRooms(rooms)
 
-            if (rooms.length > 0) {
+            if (!initialRoomId.current) {
                 form.setValue('roomId', rooms[0].roomId)
+                initialRoomId.current = true
             }
         }
     }, [rooms])
 
     const handleSubmit = (values: FormValues) => {
-        console.log(values)
         handleNewUser(values)
+        console.log("form values", values)
     }
 
     return (

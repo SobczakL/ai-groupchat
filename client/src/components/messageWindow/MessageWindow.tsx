@@ -1,86 +1,61 @@
 import React, { useEffect, useRef, useState } from "react";
+import useWebSocket from "@/hooks/useWebSocket";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
-import { User, WebSocketMessage } from "@/lib/types";
+import { User, MessageData } from "@/lib/types";
 
 interface MessageWindowProps {
-    userDetails: User;
-    receivedMessages: (message: string) => void
-    allReceivedMessages: string[];
-    sendMessage: (message: WebSocketMessage) => void;
+    userDetails: User | null
+
 }
+export default function MessageWindow({ userDetails }: MessageWindowProps) {
 
-interface Message {
-    id: number;
-    user: User;
-    message: string;
-}
-
-export default function MessageWindow({
-    userDetails,
-    receivedMessages,
-    allReceivedMessages,
-    sendMessage
-}: MessageWindowProps) {
-
+    console.log("userdetails at start message window", userDetails)
+    const { receivedMessages, allReceivedMessages, ws, sendMessage } = useWebSocket(userDetails);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const [messages, setMessages] = useState<Message[]>([]);
+    const [messages, setMessages] = useState<MessageData[]>([]);
+    const [processedMessages, setProcessedMessages] = useState(0)
 
     useEffect(() => {
-        setMessages(allReceivedMessages.map(msg => {
-            try {
-                const parsedMessage = JSON.parse(msg);
-                console.log(parsedMessage)
-                if (parsedMessage.type === "CHAT") {
-                    const userData = parsedMessage.payload;
-                    //FIX:
-                    //alter to handle llm messaging and user messages
-                    return {
-                        id: Date.now(),
-                        user: userData,
-                        message: userData.message,
-                    };
-                }
-            } catch (error) {
-                console.error("Error parsing message:", error);
-            }
-            return null;
-
-        }).filter(msg => msg !== null) as Message[]);
+        console.log(allReceivedMessages)
+        const newMessages = allReceivedMessages.slice(processedMessages)
+        setMessages(prev => [...prev, ...newMessages])
+        setProcessedMessages(allReceivedMessages.length)
     }, [allReceivedMessages]);
 
+
+    const handleUserMessage = () => {
+        if (textareaRef.current && textareaRef.current.value.trim()) {
+            const newMessage = textareaRef.current.value;
+            const userMessage: MessageData = {
+                type: "chat",
+                payload: {
+                    id: Date.now() + Math.random(),
+                    room: userDetails.roomId,
+                    username: userDetails.username,
+                    message: newMessage,
+                    timestamp: Date.now()
+                }
+            }
+            sendMessage(userMessage);
+            setMessages(prev => {
+                return [...prev, userMessage];
+            });
+            textareaRef.current.value = '';
+        }
+    }
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleUserMessage();
         }
     };
-
-    const handleUserMessage = () => {
-        if (textareaRef.current && textareaRef.current.value.trim()) {
-            const newMessage = textareaRef.current.value;
-            const messageObject: Message = {
-                id: Date.now(),
-                user: userDetails,
-                message: newMessage
-            }
-
-            setMessages(prev => [...prev, messageObject]);
-            const data: WebSocketMessage = {
-                "type": "CHAT",
-                "payload": { ...userDetails, message: newMessage }
-            }
-            sendMessage(data);
-            textareaRef.current.value = '';
-        }
-    }
-
     return (
         <div>
             <div>
                 {messages &&
-                    messages.map((message: Message) => (
-                        <p key={message.id}>{message.message}</p>
+                    messages.map((message: MessageData, index: number) => (
+                        <p key={index}>{message.payload.message}</p>
                     ))}
             </div>
             <div>
@@ -92,6 +67,5 @@ export default function MessageWindow({
                 <Button onClick={handleUserMessage}>Send</Button>
             </div>
         </div>
-
     )
 }

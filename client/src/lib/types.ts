@@ -6,7 +6,7 @@ export type Rooms = Room[]
 
 export type User = {
     userId: number;
-    room: Room;
+    roomId: number;
     username: string;
     message?: string;
 }
@@ -21,7 +21,7 @@ export type CurrentUsers = {
 type ChatMessagePayload = {
     user: User;
     message: string;
-    timestamp: Date;
+    timestamp: number;
 };
 
 type UpdateUserPayload = {
@@ -33,7 +33,20 @@ type WebSocketPayload =
     | UpdateUserPayload
     | any;
 
+type PayloadData = {
+    id: number;
+    room: number;
+    username: string;
+    message: string;
+    timestamp: number;
+}
+
+export type MessageData = {
+    type: "create" | "chat" | string;
+    payload: PayloadData;
+}
+
 export type WebSocketMessage = {
-    type: "SERVER" | "CREATE" | "CHAT" | string;
+    type: "server_chat" | "user_create" | "user_chat" | string;
     payload: WebSocketPayload;
 };

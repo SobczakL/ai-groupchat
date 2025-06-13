@@ -1,19 +1,20 @@
 import { useEffect, useState } from "react";
 import type { User } from "@/lib/types";
 
-
-export function useGetCurrentUsers() {
+export function useGetCurrentRooms() {
     const [users, setUsers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const endpoint = "http://localhost:3000/rooms";
+    const endpoint = "http://localhost:3000/user";
 
     const fetchUserData = async () => {
         setIsLoading(true);
         setError(null);
 
         try {
-            const response = await fetch(endpoint);
+            const response = await fetch(endpoint, {
+                method: "GET"
+            });
 
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);

@@ -3,14 +3,15 @@ import { useEffect, useRef, useState } from 'react';
 import useWebSocket from './hooks/useWebSocket';
 import MessageWindow from './components/messageWindow/MessageWindow';
 import UserOptionsContainer from './components/userOptions/UserOptionsContainer';
-import { useGetCurrentUsers } from './hooks/useGetCurrentUsers';
+import { useGetCurrentRooms } from './hooks/useGetCurrentRooms';
 import { CurrentUsers } from './lib/types';
+import { AddUser } from './utils/Adduser';
+import type { User } from './lib/types';
 
 function App() {
-    const { receivedMessages, allReceivedMessages, ws, sendMessage } = useWebSocket();
-    const { users, isLoading, error, fetchUserData } = useGetCurrentUsers()
+    const { users, isLoading, error, fetchUserData } = useGetCurrentRooms()
     const [currentUsers, setCurrentUsers] = useState<CurrentUsers>({ users: [], loading: false, error: null })
-    const selectedRoom = useRef(null)
+    const selectedRoom = useRef<(number | null)>(null)
 
     useEffect(() => {
         setCurrentUsers({
@@ -31,14 +32,18 @@ function App() {
     ]
 
 
-    const handleNewUser = (newUser) => {
-        selectedRoom.current = newUser.roomId
-        const data = {
-            "type": "CREATE",
-            "payload": newUser
+    const handleNewUser = async (newUser: User) => {
+        try {
+            await AddUser(newUser)
+            selectedRoom.current = newUser.roomId
+            console.log(newUser)
         }
-        sendMessage(data)
-        fetchUserData()
+        catch (error) {
+            console.log(error)
+        }
+        finally {
+            fetchUserData()
+        }
     }
 
     return (
@@ -50,14 +55,15 @@ function App() {
             {
                 !isLoading
                     ? currentUsers.users.map((user, index) => {
+                        console.log("user", user)
                         if (user.roomId === selectedRoom.current) {
                             return (
                                 <MessageWindow
                                     key={index}
                                     userDetails={user}
-                                    receivedMessages={receivedMessages}
-                                    allReceivedMessages={allReceivedMessages}
-                                    sendMessage={sendMessage}
+                                // receivedMessages={receivedMessages}
+                                // allReceivedMessages={allReceivedMessages}
+                                // sendMessage={sendMessage}
                                 />
                             );
                         }
