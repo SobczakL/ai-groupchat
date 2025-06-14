@@ -20,7 +20,8 @@ export const websocketHandlers: WebSocketHandlers = {
     open(ws) {
         console.log("WebSocket connection opened at open ws", ws)
         console.log(ws.data)
-        ws.subscribe(ws.data.roomId)
+        const room = toString(ws.data.roomId)
+        ws.subscribe(room)
         ws.send("Welcome to the WebSocket server")
     },
     message(ws, message) {

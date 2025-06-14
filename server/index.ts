@@ -25,7 +25,6 @@ const server = Bun.serve<{
         //FIX:
         //clean up the pathname logic
         if (url.pathname === "/ws") {
-            console.log("here at ws endpoint")
             const parsedUserId = parseInt(url.searchParams.get('userId') || '', 10);
             const parsedRoomId = parseInt(url.searchParams.get('roomId') || '', 10);
             console.log(parsedUserId, parsedRoomId)
@@ -70,40 +69,60 @@ const server = Bun.serve<{
         return new Response("hello from server", { headers });
     },
     websocket: {
-        ...websocketHandlers,
-        message: async (ws: ServerWebSocket, data: string) => {
-            const messageData = JSON.parse(data)
-            ws.send(JSON.stringify({
-                type: "chat",
-                payload: {
-                    username: "LLM",
-                    roomId: messageData.payload.roomId,
-                    message: "hi from server",
-                    timestamp: Date.now()
-                }
-            }))
-            //FIX:
-            //     const response = await llmChatExchange(messageData.payload.message)
-            //     try {
-            //         if (response) {
-            //             ws.send(JSON.stringify({
-            //                 type: "CHAT",
-            //                 response: response
-            //             }))
-            //         }
-            //         else {
-            //             console.log("error no response")
-            //         }
-            //     }
-            //     catch (error) {
-            //         console.error(`Error in function llmChatExchange: ${error}`)
-            //         return `Error: ${error}`
-            //
-            //     }
-            //     break;
-            // }
+        open(ws) {
+            console.log("WebSocket connection opened at open ws", ws)
+            const room = ws.data.roomId.toString()
+            ws.subscribe(room)
+            server.publish(room, 'hello')
         },
+        message(ws, message) {
+            console.log(`Received message: ${message}`)
+            ws.send(`Server received: ${message}`)
+            server.publish(ws.data.roomId.toString(), message)
+        },
+        close(ws) {
+            console.log("WebSocket connection closed")
+        },
+        error(ws, error) {
+            console.error("WebSocket error:", error)
+        },
+        drain(ws) {
+            console.log("WebSocket ready to send more data")
+        }
+        // message: async (ws: ServerWebSocket, data: string) => {
+        //     const messageData = JSON.parse(data)
+        //     ws.send(JSON.stringify({
+        //         type: "chat",
+        //         payload: {
+        //             username: "LLM",
+        //             roomId: messageData.payload.roomId,
+        //             message: "hi from server",
+        //             timestamp: Date.now()
+        //         }
+        //     }
+        // ))
+        //FIX:
+        //     const response = await llmChatExchange(messageData.payload.message)
+        //     try {
+        //         if (response) {
+        //             ws.send(JSON.stringify({
+        //                 type: "CHAT",
+        //                 response: response
+        //             }))
+        //         }
+        //         else {
+        //             console.log("error no response")
+        //         }
+        //     }
+        //     catch (error) {
+        //         console.error(`Error in function llmChatExchange: ${error}`)
+        //         return `Error: ${error}`
+        //
+        //     }
+        //     break;
+        // }
     },
+},
 });
 
 console.log(`server listening on ${server.port}`)
