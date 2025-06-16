@@ -53,7 +53,7 @@ export default function useWebSocket(userDetails: UserDetailsProps | null) {
             };
 
             newWs.onclose = () => {
-                console.log(`WebSocket closed`);
+                console.log(`WebSocket closed in client`);
                 wsRef.current = null
                 setWs(null)
             };
@@ -65,6 +65,7 @@ export default function useWebSocket(userDetails: UserDetailsProps | null) {
             newWs.onmessage = (event: MessageEvent) => {
                 try {
                     const message: MessageData = JSON.parse(event.data)
+                    console.log("message in socket", message)
                     if (message.type === "chat" || message.type === "server_chat") {
                         setAllReceivedMessages(prev => [...prev, message])
                     }

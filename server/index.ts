@@ -81,7 +81,7 @@ const server = Bun.serve<{
             server.publish(ws.data.roomId.toString(), message)
         },
         close(ws) {
-            console.log("WebSocket connection closed")
+            console.log("WebSocket connection closed in server")
         },
         error(ws, error) {
             console.error("WebSocket error:", error)
@@ -122,7 +122,6 @@ const server = Bun.serve<{
         //     break;
         // }
     },
-},
 });
 
 console.log(`server listening on ${server.port}`)
