@@ -98,7 +98,7 @@ export default function useWebSocket(userDetails: UserDetailsProps | null) {
         } else {
             console.error('WebSocket connection not open');
         }
-    }, [userDetails]);
+    }, [ws]);
 
     return {
         // receivedMessages: handleReceivedMessages,

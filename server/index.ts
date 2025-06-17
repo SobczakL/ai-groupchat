@@ -77,7 +77,7 @@ const server = Bun.serve<{
         },
         message(ws, message) {
             console.log(`Received message: ${message}`)
-            ws.send(`Server received: ${message}`)
+            // ws.send(`Server received: ${message}`)
             server.publish(ws.data.roomId.toString(), message)
         },
         close(ws) {

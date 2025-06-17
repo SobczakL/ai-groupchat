@@ -38,9 +38,9 @@ export default function MessageWindow({ userDetails }: MessageWindowProps) {
                 }
             }
             sendMessage(userMessage);
-            setMessages(prev => {
-                return [...prev, userMessage];
-            });
+            // setMessages(prev => {
+            //     return [...prev, userMessage];
+            // });
             textareaRef.current.value = '';
         }
     }
