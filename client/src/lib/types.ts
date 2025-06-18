@@ -11,6 +11,8 @@ export type User = {
     message?: string;
 }
 
+export type UserCount = number | null
+
 export type CurrentUsers = {
     users: User[];
     loading: boolean;

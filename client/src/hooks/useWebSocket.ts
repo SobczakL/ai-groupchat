@@ -53,7 +53,6 @@ export default function useWebSocket(userDetails: UserDetailsProps | null) {
             };
 
             newWs.onclose = () => {
-                console.log(`WebSocket closed in client`);
                 wsRef.current = null
                 setWs(null)
             };

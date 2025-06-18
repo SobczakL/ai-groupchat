@@ -1,14 +1,15 @@
 import './App.css';
 import { useEffect, useRef, useState } from 'react';
-import useWebSocket from './hooks/useWebSocket';
 import MessageWindow from './components/messageWindow/MessageWindow';
-import UserOptionsContainer from './components/userOptions/UserOptionsContainer';
+import UserCountOptions from './components/userOptions/UserCountOptions';
+import UserDetailsOptions from './components/userOptions/UserDetailsOptions';
 import { useGetCurrentRooms } from './hooks/useGetCurrentRooms';
-import { CurrentUsers } from './lib/types';
+import { UserCount, CurrentUsers } from './lib/types';
 import { AddUser } from './utils/Adduser';
 import type { User } from './lib/types';
 
 function App() {
+    const [userCount, setUserCount] = useState<UserCount>(null)
     const { users, isLoading, error, fetchUserData } = useGetCurrentRooms()
     const [currentUsers, setCurrentUsers] = useState<CurrentUsers>({ users: [], loading: false, error: null })
     const selectedRoom = useRef<(number | null)>(null)
@@ -31,6 +32,9 @@ function App() {
         { roomId: 3 }
     ]
 
+    const handleUserCount = (value: number) => {
+        setUserCount(value)
+    }
 
     const handleNewUser = async (newUser: User) => {
         try {
@@ -48,7 +52,10 @@ function App() {
 
     return (
         <div className='h-[100vh]'>
-            <UserOptionsContainer
+            <UserCountOptions
+                handleUserCount={handleUserCount}
+            />
+            <UserDetailsOptions
                 rooms={roomOptions}
                 handleNewUser={handleNewUser}
             />

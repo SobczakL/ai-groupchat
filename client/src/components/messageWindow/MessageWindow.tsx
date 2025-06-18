@@ -10,14 +10,12 @@ interface MessageWindowProps {
 }
 export default function MessageWindow({ userDetails }: MessageWindowProps) {
 
-    console.log("userdetails at start message window", userDetails)
     const { receivedMessages, allReceivedMessages, ws, sendMessage } = useWebSocket(userDetails);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [messages, setMessages] = useState<MessageData[]>([]);
     const [processedMessages, setProcessedMessages] = useState(0)
 
     useEffect(() => {
-        console.log(allReceivedMessages)
         const newMessages = allReceivedMessages.slice(processedMessages)
         setMessages(prev => [...prev, ...newMessages])
         setProcessedMessages(allReceivedMessages.length)
@@ -38,9 +36,6 @@ export default function MessageWindow({ userDetails }: MessageWindowProps) {
                 }
             }
             sendMessage(userMessage);
-            // setMessages(prev => {
-            //     return [...prev, userMessage];
-            // });
             textareaRef.current.value = '';
         }
     }

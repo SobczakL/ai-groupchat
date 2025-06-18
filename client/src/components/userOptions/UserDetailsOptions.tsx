@@ -30,12 +30,12 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface UserOptionsContainerProps {
+interface UserDetailsOptionsProps {
     rooms: Rooms;
     handleNewUser: (values: FormValues) => void;
 }
 
-export default function UserOptionsContainer({ rooms, handleNewUser }: UserOptionsContainerProps) {
+export default function UserDetailsOptions({ rooms, handleNewUser }: UserDetailsOptionsProps) {
 
     const [localRooms, setLocalRooms] = useState<Rooms>([])
     const initialRoomId = useRef(false)
@@ -62,7 +62,6 @@ export default function UserOptionsContainer({ rooms, handleNewUser }: UserOptio
 
     const handleSubmit = (values: FormValues) => {
         handleNewUser(values)
-        console.log("form values", values)
     }
 
     return (
