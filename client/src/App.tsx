@@ -55,28 +55,36 @@ function App() {
             <UserCountOptions
                 handleUserCount={handleUserCount}
             />
-            <UserDetailsOptions
-                rooms={roomOptions}
-                handleNewUser={handleNewUser}
-            />
-            {
-                !isLoading
-                    ? currentUsers.users.map((user, index) => {
-                        console.log("user", user)
-                        if (user.roomId === selectedRoom.current) {
-                            return (
-                                <MessageWindow
-                                    key={index}
-                                    userDetails={user}
-                                // receivedMessages={receivedMessages}
-                                // allReceivedMessages={allReceivedMessages}
-                                // sendMessage={sendMessage}
-                                />
-                            );
-                        }
-                        return null;
-                    })
-                    : null
+            {userCount > 0 ? (
+                Array.from({ length: userCount }).map((_, index) => (
+                    <UserDetailsOptions
+                        key={index}
+                        rooms={roomOptions}
+                        handleNewUser={handleNewUser}
+                    />
+                ))
+            ) : (
+                <p style={{ margin: '10px', color: 'gray' }}>
+                    No user details to display. Set user count.
+                </p>
+            )}
+            {!isLoading
+                ? currentUsers.users.map((user, index) => {
+                    console.log("user", user)
+                    if (user.roomId === selectedRoom.current) {
+                        return (
+                            <MessageWindow
+                                key={index}
+                                userDetails={user}
+                            // receivedMessages={receivedMessages}
+                            // allReceivedMessages={allReceivedMessages}
+                            // sendMessage={sendMessage}
+                            />
+                        );
+                    }
+                    return null;
+                })
+                : null
             }
         </div>
     );

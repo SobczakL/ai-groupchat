@@ -18,7 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 const formSchema = z.object({
-    userCount: z.number()
+    userCount: z.coerce.number()
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -31,6 +31,9 @@ export default function UserCountOptions({ handleUserCount }: UserCountOptionsPr
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
+        defaultValues: {
+            userCount: undefined
+        }
     })
 
     const handleSubmit = (value: FormValues) => {
