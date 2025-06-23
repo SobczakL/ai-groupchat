@@ -32,8 +32,13 @@ function App() {
         { roomId: 3 }
     ]
 
-    const handleUserCount = (value: number) => {
-        setUserCount(value)
+    const handleUserCount = async (value: number) => {
+        try {
+            await setUserCount(value)
+        }
+        catch (error) {
+            console.log(error)
+        }
     }
 
     const handleNewUser = async (newUser: User) => {

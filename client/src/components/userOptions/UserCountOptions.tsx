@@ -32,12 +32,12 @@ export default function UserCountOptions({ handleUserCount }: UserCountOptionsPr
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            userCount: undefined
+            userCount: 1
         }
     })
 
-    const handleSubmit = (value: FormValues) => {
-        handleUserCount(value)
+    const handleSubmit = (data: FormValues) => {
+        handleUserCount(data.userCount)
     }
 
     return (
