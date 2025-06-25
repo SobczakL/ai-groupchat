@@ -3,26 +3,23 @@ import { useEffect, useRef, useState } from 'react';
 import MessageWindow from './components/messageWindow/MessageWindow';
 import UserCountOptions from './components/userOptions/UserCountOptions';
 import UserDetailsOptions from './components/userOptions/UserDetailsOptions';
-import { useGetCurrentRooms } from './hooks/useGetCurrentRooms';
 import { UserCount, CurrentUsers } from './lib/types';
-import { AddUser } from './utils/Adduser';
+import { useUsers } from './hooks/useUsers';
 import type { User } from './lib/types';
 
 function App() {
     const [userCount, setUserCount] = useState<UserCount>(null)
-    const { users, isLoading, error, fetchUserData } = useGetCurrentRooms()
+    const {
+        users,
+        isLoading,
+        error,
+        fetchUsers,
+        addUser,
+        isAddingUser,
+        addUserError
+    } = useUsers()
     const [currentUsers, setCurrentUsers] = useState<CurrentUsers>({ users: [], loading: false, error: null })
     const selectedRoom = useRef<(number | null)>(null)
-
-    useEffect(() => {
-        setCurrentUsers({
-            users: users,
-            loading: isLoading,
-            error: error
-        })
-        //FIX:
-        console.log(users)
-    }, [users, isLoading, error])
 
     //FIX:
     //change to a dial of rooms
@@ -34,12 +31,24 @@ function App() {
 
     const handleUserCount = async (value: number) => {
         try {
-            await setUserCount(value)
+            setUserCount(value)
         }
         catch (error) {
             console.log(error)
         }
     }
+
+    useEffect(() => {
+        setCurrentUsers({
+            users: users,
+            loading: isLoading,
+            error: error
+        })
+        //FIX:
+        console.log(users)
+    }, [users, isLoading, error])
+
+
 
     const handleNewUser = async (newUser: User) => {
         try {
@@ -75,19 +84,15 @@ function App() {
             )}
             {!isLoading
                 ? currentUsers.users.map((user, index) => {
-                    console.log("user", user)
-                    if (user.roomId === selectedRoom.current) {
-                        return (
-                            <MessageWindow
-                                key={index}
-                                userDetails={user}
-                            // receivedMessages={receivedMessages}
-                            // allReceivedMessages={allReceivedMessages}
-                            // sendMessage={sendMessage}
-                            />
-                        );
-                    }
-                    return null;
+                    return (
+                        <MessageWindow
+                            key={index}
+                            userDetails={user}
+                        // receivedMessages={receivedMessages}
+                        // allReceivedMessages={allReceivedMessages}
+                        // sendMessage={sendMessage}
+                        />
+                    );
                 })
                 : null
             }
