@@ -60,7 +60,7 @@ function App() {
             console.log(error)
         }
         finally {
-            fetchUserData()
+            fetchUsers()
         }
     }
 
