@@ -33,26 +33,15 @@ function App() {
         try {
             setUserCount(value)
         }
+
         catch (error) {
             console.log(error)
         }
     }
 
-    useEffect(() => {
-        setCurrentUsers({
-            users: users,
-            loading: isLoading,
-            error: error
-        })
-        //FIX:
-        console.log(users)
-    }, [users, isLoading, error])
-
-
-
     const handleNewUser = async (newUser: User) => {
         try {
-            await AddUser(newUser)
+            await addUser(newUser)
             selectedRoom.current = newUser.roomId
             console.log(newUser)
         }
@@ -83,7 +72,7 @@ function App() {
                 </p>
             )}
             {!isLoading
-                ? currentUsers.users.map((user, index) => {
+                ? Array.from({ length: userCount }).map((user, index) => {
                     return (
                         <MessageWindow
                             key={index}

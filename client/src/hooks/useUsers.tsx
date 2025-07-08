@@ -9,6 +9,8 @@ export function useUsers() {
     const [addUserError, setAddUserError] = useState<string | null>(null);
     const endpoint = "http://localhost:3000/user";
 
+    //FIX: Do I really ever need to fetch?
+    //Cur client side never needs full user list
     const fetchUsers = useCallback(async () => {
         setIsLoading(true)
         setError(null)
@@ -36,7 +38,7 @@ export function useUsers() {
 
     const addUser = useCallback(async (newUser: User) => {
         setIsAddingUser(true)
-        setAddUserError(false)
+        setAddUserError(null)
 
         try {
             const response = await fetch(endpoint, {
@@ -54,8 +56,12 @@ export function useUsers() {
             await fetchUsers()
             return true;
         }
-        catch (error: any) {
+        catch (error: unknown) {
             console.error("Error adding user", error)
+            return false
+        }
+        finally {
+            setIsAddingUser(false)
         }
 
     }, [fetchUsers])
