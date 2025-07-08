@@ -43,6 +43,10 @@ function App() {
         try {
             await addUser(newUser)
             selectedRoom.current = newUser.roomId
+            setCurrentUsers(prev => ({
+                ...prev,
+                users: [...prev.users, newUser]
+            }))
             console.log(newUser)
         }
         catch (error) {
@@ -72,7 +76,7 @@ function App() {
                 </p>
             )}
             {!isLoading
-                ? Array.from({ length: userCount }).map((user, index) => {
+                ? currentUsers.users.map((user, index) => {
                     return (
                         <MessageWindow
                             key={index}
