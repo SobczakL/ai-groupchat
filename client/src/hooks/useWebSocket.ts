@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import type { MessageData } from "@/lib/types";
+import { convertDateString } from "@/lib/utils";
 
 interface UserDetailsProps {
     userId: number;
@@ -66,7 +67,17 @@ export default function useWebSocket(userDetails: UserDetailsProps | null) {
                     const message: MessageData = JSON.parse(event.data)
                     console.log("message in socket", message)
                     if (message.type === "chat" || message.type === "server_chat") {
-                        setAllReceivedMessages(prev => [...prev, message])
+
+                        const formattedTime = convertDateString(message.payload.timestamp)
+                        const formattedMessage = {
+                            ...message,
+                            payload: {
+                                ...message.payload,
+                                displayTime: formattedTime
+                            }
+                        }
+                        console.log(formattedMessage)
+                        setAllReceivedMessages(prev => [...prev, formattedMessage])
                     }
                 }
                 catch (error) {

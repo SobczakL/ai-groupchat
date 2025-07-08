@@ -81,9 +81,6 @@ function App() {
                         <MessageWindow
                             key={index}
                             userDetails={user}
-                        // receivedMessages={receivedMessages}
-                        // allReceivedMessages={allReceivedMessages}
-                        // sendMessage={sendMessage}
                         />
                     );
                 })

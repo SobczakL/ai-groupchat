@@ -41,6 +41,7 @@ type PayloadData = {
     username: string;
     message: string;
     timestamp: number;
+    displayTime?: string;
 }
 
 export type MessageData = {

@@ -5,7 +5,7 @@ import { Textarea } from "../ui/textarea";
 import { User, MessageData } from "@/lib/types";
 
 interface MessageWindowProps {
-    userDetails: User | null
+    userDetails: User
 
 }
 export default function MessageWindow({ userDetails }: MessageWindowProps) {
@@ -50,7 +50,10 @@ export default function MessageWindow({ userDetails }: MessageWindowProps) {
             <div>
                 {messages &&
                     messages.map((message: MessageData, index: number) => (
-                        <p key={index}>{message.payload.message}</p>
+                        <div key={index}>
+                            <p key={index}>{message.payload.message}</p>
+                            <p>{message.payload.displayTime.time}</p>
+                        </div>
                     ))}
             </div>
             <div>
