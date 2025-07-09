@@ -101,8 +101,40 @@ const server = Bun.serve<{
             ws.subscribe(room)
             server.publish(room, 'hello')
         },
-        message(ws, message) {
+        async message(ws: ServerWebSocket<{
+            userId: number | null,
+            roomId: number | null,
+            username: string | null
+        }>,
+            message: string | Buffer
+        ): Promise<void> {
+            //NOTE: ensure message is a string before parsing.
+            const messageString = typeof message === "string" ? message : message.toString('utf8')
+
+            //FIX: rework this.
+            //
+            const incomingMessage = JSON.parse(messageString)
+            console.log(incomingMessage)
             console.log(`Received message: ${message}`)
+            if (incomingMessage.type === "llm") {
+                const response = await llmChatExchange(incomingMessage.payload.message)
+                try {
+                    if (response) {
+                        ws.send(JSON.stringify({
+                            type: "CHAT",
+                            response: response
+                        }))
+                    }
+                    else {
+                        console.log("error no response")
+                    }
+                }
+                catch (error) {
+                    console.error(`Error in function llmChatExchange: ${error}`)
+                    return `Error: ${error}`
+
+                }
+            }
             server.publish(ws.data.roomId.toString(), message)
         },
         close(ws) {
@@ -127,25 +159,6 @@ const server = Bun.serve<{
         //     }
         // ))
         //FIX:
-        //     const response = await llmChatExchange(messageData.payload.message)
-        //     try {
-        //         if (response) {
-        //             ws.send(JSON.stringify({
-        //                 type: "CHAT",
-        //                 response: response
-        //             }))
-        //         }
-        //         else {
-        //             console.log("error no response")
-        //         }
-        //     }
-        //     catch (error) {
-        //         console.error(`Error in function llmChatExchange: ${error}`)
-        //         return `Error: ${error}`
-        //
-        //     }
-        //     break;
-        // }
     },
 });
 

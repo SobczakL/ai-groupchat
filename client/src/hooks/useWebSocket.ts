@@ -66,7 +66,7 @@ export default function useWebSocket(userDetails: UserDetailsProps | null) {
                 try {
                     const message: MessageData = JSON.parse(event.data)
                     console.log("message in socket", message)
-                    if (message.type === "chat" || message.type === "server_chat") {
+                    if (message.type === "chat" || message.type === "llm") {
 
                         const formattedTime = convertDateString(message.payload.timestamp)
                         const formattedMessage = {
