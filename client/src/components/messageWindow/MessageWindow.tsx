@@ -11,7 +11,10 @@ interface MessageWindowProps {
 export default function MessageWindow({ userDetails }: MessageWindowProps) {
 
     const { receivedMessages, allReceivedMessages, ws, sendMessage } = useWebSocket(userDetails);
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    const userInputMessageRef = useRef<HTMLTextAreaElement>(null);
+    const llmInputMessageRef = useRef<HTMLTextAreaElement>(null)
+
     const [messages, setMessages] = useState<MessageData[]>([]);
     const [processedMessages, setProcessedMessages] = useState(0)
 
@@ -22,11 +25,13 @@ export default function MessageWindow({ userDetails }: MessageWindowProps) {
     }, [allReceivedMessages]);
 
 
-    const handleUserMessage = () => {
-        if (textareaRef.current && textareaRef.current.value.trim()) {
-            const newMessage = textareaRef.current.value;
+    const handleUserMessage = (inputRef: React.RefObject<HTMLTextAreaElement | null>,
+        messageType: "chat" | "llm"
+    ): void => {
+        if (inputRef.current && inputRef.current.value.trim()) {
+            const newMessage = inputRef.current.value;
             const userMessage: MessageData = {
-                type: "chat",
+                type: messageType,
                 payload: {
                     id: Date.now() + Math.random(),
                     room: userDetails.roomId,
@@ -36,13 +41,19 @@ export default function MessageWindow({ userDetails }: MessageWindowProps) {
                 }
             }
             sendMessage(userMessage);
-            textareaRef.current.value = '';
+            inputRef.current.value = '';
         }
     }
-    const handleKeyDown = (e: React.KeyboardEvent) => {
+    const handleKeyDown = (e: React.KeyboardEvent, context: 'chat' | 'llm') => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            handleUserMessage();
+            if (context === 'chat') {
+                handleUserMessage(userInputMessageRef, context);
+            }
+            else if (context === 'llm') {
+                handleUserMessage(llmInputMessageRef, context);
+            }
+
         }
     };
     return (
@@ -58,12 +69,20 @@ export default function MessageWindow({ userDetails }: MessageWindowProps) {
             </div>
             <div>
                 <Textarea
-                    ref={textareaRef}
+                    ref={userInputMessageRef}
                     placeholder="Type your message here..."
-                    onKeyDown={handleKeyDown}
+                    onKeyDown={(e) => handleKeyDown(e, 'chat')}
                 />
-                <Button onClick={handleUserMessage}>Send</Button>
+                <Button onClick={() => handleUserMessage(userInputMessageRef, 'chat')}>Send</Button>
             </div>
+            <div>
+                <Textarea
+                    ref={llmInputMessageRef}
+                    placeholder="Ask AI"
+                    onKeyDown={(e) => handleKeyDown(e, 'llm')}
+                />
+            </div>
+            <Button onClick={() => handleUserMessage(llmInputMessageRef, 'llm')}>Ask AI</Button>
         </div>
     )
 }
