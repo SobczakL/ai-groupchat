@@ -115,15 +115,13 @@ const server = Bun.serve<{
             //
             const incomingMessage = JSON.parse(messageString)
             console.log(incomingMessage)
-            console.log(`Received message: ${message}`)
             if (incomingMessage.type === "llm") {
                 const response = await llmChatExchange(incomingMessage.payload.message)
                 try {
                     if (response) {
-                        ws.send(JSON.stringify({
-                            type: "CHAT",
-                            response: response
-                        }))
+                        console.log(response)
+                        //FIX: must send back as payload data
+                        server.publish(ws.data.roomId.toString(), response)
                     }
                     else {
                         console.log("error no response")
@@ -131,11 +129,11 @@ const server = Bun.serve<{
                 }
                 catch (error) {
                     console.error(`Error in function llmChatExchange: ${error}`)
-                    return `Error: ${error}`
-
                 }
             }
-            server.publish(ws.data.roomId.toString(), message)
+            if (incomingMessage.type === "chat") {
+                server.publish(ws.data.roomId.toString(), message)
+            }
         },
         close(ws) {
             console.log("WebSocket connection closed in server")
