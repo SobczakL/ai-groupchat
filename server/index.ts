@@ -99,7 +99,18 @@ const server = Bun.serve<{
             console.log("WebSocket connection opened at open ws", ws)
             const room = ws.data.roomId.toString()
             ws.subscribe(room)
-            server.publish(room, 'hello')
+            const data = {
+                type: "chat",
+                payload: {
+                    id: Date.now() + Math.random(),
+                    room: room,
+                    username: "server",
+                    message: "hello",
+                    timestamp: Date.now()
+                }
+            }
+            const newData = JSON.stringify(data)
+            server.publish(room, newData)
         },
         async message(ws: ServerWebSocket<{
             userId: number | null,
@@ -120,8 +131,19 @@ const server = Bun.serve<{
                 try {
                     if (response) {
                         console.log(response)
-                        //FIX: must send back as payload data
-                        server.publish(ws.data.roomId.toString(), response)
+                        //FIX: need chat history cached data
+                        const data = {
+                            type: "llm",
+                            payload: {
+                                id: Date.now() + Math.random(),
+                                room: ws.data.roomId?.toString(),
+                                username: "llm",
+                                message: response,
+                                timestamp: Date.now()
+                            }
+                        }
+                        const newData = JSON.stringify(data)
+                        server.publish(ws.data.roomId.toString(), newData)
                     }
                     else {
                         console.log("error no response")
