@@ -17,12 +17,6 @@ export default function useWebSocket(userDetails: UserDetailsProps | null) {
     //strict mode.
     const wsRef = useRef<WebSocket | null>(null)
 
-    // const handleReceivedMessages = useCallback((message: MessageData | null) => {
-    //     if (message !== null) {
-    //         setAllReceivedMessages(prev => [...prev, message])
-    //     }
-    // }, [])
-
     useEffect(() => {
         //FIX:
         //race condition with userdetails
