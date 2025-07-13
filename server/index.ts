@@ -2,14 +2,12 @@ import { websocketHandlers } from "./chatSocket/handler"
 import type { WebSocketMessage } from "./lib/types";
 import { llmChatExchange } from "./llm/llm"
 import type { ServerWebSocket } from "bun";
-import dbInstance from "./db/db";
-import {
-    washTable,
-    initDatabase,
-} from './db/db'
+import dbInstance, {
+    getUserRooms,
+    createRoom,
+    addUserToRoom,
+} from "./db/db";
 import { currentRoomUsers, addNewUser } from "./routes/user"
-
-// washTable()
 
 const server = Bun.serve<{
     userId: number | null,
@@ -48,7 +46,7 @@ const server = Bun.serve<{
         }
         if (url.pathname === '/user' && req.method === "GET") {
             try {
-                const rooms = await currentRoomUsers()
+                const rooms = await getUserRooms()
 
                 return new Response(JSON.stringify(rooms), {
                     headers,
@@ -82,7 +80,9 @@ const server = Bun.serve<{
                         headers: postheaders,
                     })
                 }
-                await addNewUser(data.userId, data.roomId, data.username)
+                //FIX: need room name incoming
+                // await createRoom()
+                await addUserToRoom(data.userId, data.roomId, data.username)
 
                 return new Response(JSON.stringify({ message: "User added" }), {
                     status: 201,
@@ -98,6 +98,7 @@ const server = Bun.serve<{
         open(ws) {
             console.log("WebSocket connection opened at open ws", ws)
             const room = ws.data.roomId.toString()
+
             ws.subscribe(room)
             const data = {
                 type: "chat",

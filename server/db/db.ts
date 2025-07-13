@@ -59,6 +59,8 @@ export function initDatabase(): void {
     console.log('Database initialized')
 }
 
+initDatabase()
+
 const insertRoomStmt = db.prepare(
     "INSERT INTO rooms (roomName) VALUES (?)"
 );

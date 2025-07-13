@@ -52,7 +52,6 @@ export async function addNewUser(userId: number, roomId: number, username: strin
             updateUser.run(localRoomId, username)
             console.log(`User roomId changed to: ${localRoomId}`)
         }
-        tableHelper()
     }
     catch (error) {
         console.log(`Error adding user to room:`, error)
