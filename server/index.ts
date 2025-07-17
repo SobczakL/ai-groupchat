@@ -82,7 +82,7 @@ const server = Bun.serve<{
                     })
                 }
                 //FIX: need room name incoming
-                // await createRoom()
+                await createRoom(data.roomName)
                 await addUserToRoom(data.userId, data.roomId, data.username)
 
                 return new Response(JSON.stringify({ message: "User added" }), {
