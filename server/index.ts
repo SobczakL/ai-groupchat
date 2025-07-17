@@ -6,6 +6,7 @@ import dbInstance, {
     getUserRooms,
     createRoom,
     addUserToRoom,
+    washAllTables,
 } from "./db/db";
 import { currentRoomUsers, addNewUser } from "./routes/user"
 
@@ -182,5 +183,22 @@ const server = Bun.serve<{
         //FIX:
     },
 });
+
+// The below function deletes data from DB on server shut down.
+//
+async function shutDownProcedure(signal: string): Promise<void> {
+    console.log(`\nSignal received: ${signal}. Starting shutdown.`)
+
+    if (server && server.stop) {
+        server.stop()
+        console.log("Sever closed")
+    }
+    washAllTables()
+    console.log("Process exiting")
+    process.exit(0)
+}
+
+process.on("SIGTERM", () => shutDownProcedure("SIGTERM"))
+process.on("SIGINT", () => shutDownProcedure("SIGINT"))
 
 console.log(`server listening on ${server.port}`)
