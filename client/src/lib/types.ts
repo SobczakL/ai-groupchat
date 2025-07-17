@@ -8,7 +8,7 @@ export type User = {
     userId: number;
     roomId: number;
     username: string;
-    message?: string;
+    content?: string;
 }
 
 export type UserCount = number | null
@@ -22,7 +22,7 @@ export type CurrentUsers = {
 //WebSocket Message Types
 type ChatMessagePayload = {
     user: User;
-    message: string;
+    content: string;
     timestamp: number;
 };
 
@@ -36,12 +36,14 @@ type WebSocketPayload =
     | any;
 
 type PayloadData = {
-    id: number;
-    room: number;
-    username: string;
-    message: string;
+    messageId: string;
+    roomId: number;
+    userId: number;
+    role: string;
+    username?: string;
+    content: string;
     timestamp: number;
-    displayTime?: string;
+    displayTime?: { time: string; date: string };
 }
 
 export type MessageData = {

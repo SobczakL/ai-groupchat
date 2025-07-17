@@ -7,13 +7,15 @@ import dbInstance, {
     createRoom,
     addUserToRoom,
     washAllTables,
+    saveMessage,
 } from "./db/db";
 import { currentRoomUsers, addNewUser } from "./routes/user"
 
 const server = Bun.serve<{
     userId: number | null,
     roomId: number | null,
-    username: string | null
+    username: string | null,
+    payload: Record<string, any> | null
 }>({
     port: 3000,
     async fetch(req, server) {
@@ -81,7 +83,6 @@ const server = Bun.serve<{
                         headers: postheaders,
                     })
                 }
-                //FIX: need room name incoming
                 await createRoom(data.roomName)
                 await addUserToRoom(data.userId, data.roomId, data.username)
 
@@ -98,21 +99,23 @@ const server = Bun.serve<{
     websocket: {
         open(ws) {
             console.log("WebSocket connection opened at open ws", ws)
-            const room = ws.data.roomId.toString()
+            const roomId = ws.data.roomId?.toString()
 
-            ws.subscribe(room)
+            ws.subscribe(roomId)
             const data = {
                 type: "chat",
                 payload: {
-                    id: Date.now() + Math.random(),
-                    room: room,
+                    messageId: (Date.now() + Math.random()).toString(),
+                    roomId: roomId,
+                    senderId: (Date.now()).toString(),
                     username: "server",
-                    message: "hello",
-                    timestamp: Date.now()
+                    role: "system",
+                    content: "hello",
+                    timestamp: (Date.now()).toString()
                 }
             }
             const newData = JSON.stringify(data)
-            server.publish(room, newData)
+            server.publish(roomId, newData)
         },
         async message(ws: ServerWebSocket<{
             userId: number | null,

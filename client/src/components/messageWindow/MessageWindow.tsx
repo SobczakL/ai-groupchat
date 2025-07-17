@@ -33,10 +33,12 @@ export default function MessageWindow({ userDetails }: MessageWindowProps) {
             const userMessage: MessageData = {
                 type: messageType,
                 payload: {
-                    id: Date.now() + Math.random(),
-                    room: userDetails.roomId,
-                    username: userDetails.username,
-                    message: newMessage,
+                    messageId: (Date.now() + Math.random()).toString(),
+                    roomId: userDetails.roomId,
+                    userId: userDetails.userId,
+                    role: "user",
+                    // username: userDetails.username,
+                    content: newMessage,
                     timestamp: Date.now()
                 }
             }
@@ -62,7 +64,7 @@ export default function MessageWindow({ userDetails }: MessageWindowProps) {
                 {messages &&
                     messages.map((message: MessageData, index: number) => (
                         <div key={index}>
-                            <p key={index}>{message.payload.message}</p>
+                            <p key={index}>{message.payload.content}</p>
                             <p>{message.payload.displayTime.time}</p>
                         </div>
                     ))}
