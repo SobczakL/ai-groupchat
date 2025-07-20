@@ -33,7 +33,7 @@ export default function MessageWindow({ userDetails }: MessageWindowProps) {
             const userMessage: MessageData = {
                 type: messageType,
                 payload: {
-                    messageId: (Date.now() + Math.random()).toString(),
+                    messageId: crypto.randomUUID(),
                     roomId: userDetails.roomId,
                     senderId: userDetails.senderId,
                     role: "user",

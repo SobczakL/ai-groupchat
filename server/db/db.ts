@@ -1,22 +1,21 @@
 import { Database } from 'bun:sqlite'
-import { randomUUID, type UUID } from "crypto"
 
 export interface Room {
-    roomId: number;
+    roomId: string;
     roomName: string;
     createdAt?: string;
     updatedAt?: string;
 }
 
 export interface UserInRoom {
-    senderId: UUID;
-    roomId: number;
+    senderId: string;
+    roomId: string;
     username: string;
 }
 
 export interface ChatMessage {
-    messageId: UUID;
-    roomId: number;
+    messageId: string;
+    roomId: string;
     senderId: string;
     role: 'user' | 'assistant' | 'system';
     content: string;
@@ -29,7 +28,7 @@ export function initDatabase(): void {
 
     db.run(`
         CREATE TABLE IF NOT EXISTS rooms (
-        roomId INTEGER PRIMARY KEY AUTOINCREMENT,
+        roomId TEXT PRIMARY KEY,
         roomName TEXT NOT NULL,
         createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
         updatedAt TEXT DEFAULT CURRENT_TIMESTAMP
@@ -38,8 +37,8 @@ export function initDatabase(): void {
 
     db.run(`
         CREATE TABLE IF NOT EXISTS users (
-        senderId INTEGER,
-        roomId INTEGER NOT NULL,
+        senderId TEXT,
+        roomId TEXT NOT NULL,
         username TEXT NOT NULL,
         PRIMARY KEY (senderId, roomId, username),
         FOREIGN KEY (roomId) REFERENCES rooms(roomId)
@@ -48,7 +47,7 @@ export function initDatabase(): void {
     db.run(`
         CREATE TABLE IF NOT EXISTS messages (
         messageId TEXT PRIMARY KEY,
-        roomId INTEGER NOT NULL,
+        roomId TEXT NOT NULL,
         senderId TEXT NOT NULL,
         role TEXT NOT NULL,
         content TEXT NOT NULL,
@@ -62,10 +61,8 @@ export function initDatabase(): void {
 initDatabase()
 
 const insertRoomStmt = db.prepare(
-    "INSERT INTO rooms (roomName) VALUES (?)"
+    "INSERT INTO rooms (roomId, roomName) VALUES (?, ?)"
 );
-const getLastInsertRowIdStmt = db.prepare("SELECT last_insert_rowid() AS id");
-
 const getRoomByIdStmt = db.prepare(
     "SELECT * FROM rooms WHERE roomId = ?"
 );
@@ -83,29 +80,27 @@ const getMessagesByRoomIdStmt = db.prepare(
 );
 
 export function createRoom(roomName: string): Room {
-    insertRoomStmt.run(roomName);
-    const result = getLastInsertRowIdStmt.get() as { id: number };
-    const newRoomId = result.id;
+    const newRoomId = crypto.randomUUID()
+    insertRoomStmt.run(newRoomId, roomName);
     const now = new Date().toISOString();
     return { roomId: newRoomId, roomName, createdAt: now, updatedAt: now };
 }
 
-export function getRoom(roomId: number): Room | null {
+export function getRoom(roomId: string): Room | null {
     return getRoomByIdStmt.get(roomId) as Room | null;
 }
 
-export function getUserRooms(senderId: number): Room[] {
+export function getUserRooms(senderId: string): Room[] {
     return getRoomsByUserIdStmt.all(senderId) as Room[];
 }
 
-export function addUserToRoom(senderId: number, roomId: number, username: string): void {
+export function addUserToRoom(senderId: string, roomId: string, username: string): void {
     insertUserInRoomStmt.run(senderId, roomId, username);
 }
 
-export async function saveMessage(message: Omit<ChatMessage, 'messageId' | 'timestamp'>): Promise<void> {
+export async function saveMessage(message: Omit<ChatMessage, 'timestamp'>): Promise<void> {
     const newMessage: ChatMessage = {
         ...message,
-        messageId: crypto.randomUUID(),
         timestamp: new Date().toISOString(),
     };
     insertMessageStmt.run(

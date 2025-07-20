@@ -9,11 +9,10 @@ import dbInstance, {
     washAllTables,
     saveMessage,
 } from "./db/db";
-import { currentRoomUsers, addNewUser } from "./routes/user"
 
 const server = Bun.serve<{
-    senderId: number | null,
-    roomId: number | null,
+    senderId: string | null,
+    roomId: string | null,
     username: string | null,
     payload: Record<string, any> | null
 }>({
@@ -34,15 +33,17 @@ const server = Bun.serve<{
 
 
         if (url.pathname === "/ws") {
-            const parsedUserId = parseInt(url.searchParams.get('senderId') || '', 10);
-            const parsedRoomId = parseInt(url.searchParams.get('roomId') || '', 10);
-            console.log(parsedUserId, parsedRoomId)
+            const senderId = url.searchParams.get('senderId')
+            const roomId = url.searchParams.get('roomId')
+            const username = url.searchParams.get('username')
+
             const userParamsForUpgrade = {
-                senderId: isNaN(parsedUserId) ? null : parsedUserId,
-                roomId: isNaN(parsedRoomId) ? null : parsedRoomId,
-                username: url.searchParams.get('username')
+                senderId: senderId,
+                roomId: roomId,
+                username: username
             };
             const success = server.upgrade<typeof userParamsForUpgrade>(req, { data: userParamsForUpgrade })
+
             return success
                 ? undefined
                 : new Response("WebSocket upgrade failed", { status: 400 })
@@ -98,16 +99,17 @@ const server = Bun.serve<{
     },
     websocket: {
         open(ws) {
-            console.log("WebSocket connection opened at open ws", ws)
-            const roomId = ws.data.roomId?.toString()
+            console.log("WebSocket connection opened at open ws", ws.data)
+            const roomId = ws.data.roomId
+            console.log(typeof roomId)
 
             ws.subscribe(roomId)
             const data = {
                 type: "chat",
                 payload: {
-                    messageId: (Date.now() + Math.random()).toString(),
+                    messageId: crypto.randomUUID(),
                     roomId: roomId,
-                    senderId: (Date.now()).toString(),
+                    senderId: "system",
                     username: "server",
                     role: "system",
                     content: "hello",
@@ -118,8 +120,8 @@ const server = Bun.serve<{
             server.publish(roomId, newData)
         },
         async message(ws: ServerWebSocket<{
-            senderId: number | null,
-            roomId: number | null,
+            senderId: string,
+            roomId: string,
             username: string | null
         }>,
             message: string | Buffer
@@ -128,10 +130,11 @@ const server = Bun.serve<{
             const messageString = typeof message === "string" ? message : message.toString('utf8')
 
             const incomingMessage = JSON.parse(messageString)
+            console.log(typeof incomingMessage.payload.roomId)
             saveMessage(incomingMessage.payload)
             console.log(incomingMessage)
             if (incomingMessage.type === "llm") {
-                const response = await llmChatExchange(incomingMessage.payload)
+                const response = await llmChatExchange(incomingMessage.payload.roomId, incomingMessage.payload.content)
                 try {
                     if (response) {
                         console.log(response)
@@ -139,17 +142,17 @@ const server = Bun.serve<{
                         const data = {
                             type: "chat",
                             payload: {
-                                messageId: (Date.now() + Math.random()).toString(),
+                                messageId: crypto.randomUUID(),
                                 roomId: incomingMessage.payload.roomId,
-                                senderId: (Date.now()).toString(),
-                                username: "llm",
+                                senderId: crypto.randomUUID(),
+                                username: "LLM",
                                 role: "assistant",
                                 content: response,
                                 timestamp: Date.now()
                             }
                         }
                         const newData = JSON.stringify(data)
-                        server.publish(ws.data.roomId.toString(), newData)
+                        server.publish(ws.data.roomId, newData)
                     }
                     else {
                         console.log("error no response")
@@ -172,19 +175,6 @@ const server = Bun.serve<{
         drain(ws) {
             console.log("WebSocket ready to send more data")
         }
-        // message: async (ws: ServerWebSocket, data: string) => {
-        //     const messageData = JSON.parse(data)
-        //     ws.send(JSON.stringify({
-        //         type: "chat",
-        //         payload: {
-        //             username: "LLM",
-        //             roomId: messageData.payload.roomId,
-        //             message: "hi from server",
-        //             timestamp: Date.now()
-        //         }
-        //     }
-        // ))
-        //FIX:
     },
 });
 

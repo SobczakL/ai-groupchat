@@ -15,8 +15,8 @@ import { useForm } from "react-hook-form";
 
 const formSchema = z.object({
     roomName: z.string(),
-    roomId: z.number(),
-    senderId: z.number(),
+    roomId: z.string(),
+    senderId: z.string(),
     username: z.string()
 })
 
@@ -31,12 +31,9 @@ export default function UserDetailsOptions({ handleNewUser }: UserDetailsOptions
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            //NOTE:
-            //Setting ID as date fine for demo, would
-            //need to change for production.
-            senderId: Date.now(),
+            senderId: crypto.randomUUID(),
             roomName: "",
-            roomId: Date.now(),
+            roomId: crypto.randomUUID(),
             username: ""
         }
     })

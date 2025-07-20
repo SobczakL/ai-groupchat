@@ -3,8 +3,8 @@ import type { MessageData } from "@/lib/types";
 import { convertDateString } from "@/lib/utils";
 
 interface UserDetailsProps {
-    roomId: number;
-    senderId: number;
+    roomId: string;
+    senderId: string;
     username: string;
 }
 
