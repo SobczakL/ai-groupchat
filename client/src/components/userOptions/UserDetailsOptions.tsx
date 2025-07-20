@@ -8,57 +8,35 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import type { Rooms } from "@/lib/types";
-import { useEffect, useRef, useState } from "react";
 
 const formSchema = z.object({
-    userId: z.number(),
-    roomId: z.coerce.number(),
+    roomName: z.string(),
+    roomId: z.string(),
+    senderId: z.string(),
     username: z.string()
 })
 
 type FormValues = z.infer<typeof formSchema>;
 
 interface UserDetailsOptionsProps {
-    rooms: Rooms;
     handleNewUser: (values: FormValues) => void;
 }
 
-export default function UserDetailsOptions({ rooms, handleNewUser }: UserDetailsOptionsProps) {
-
-    const [localRooms, setLocalRooms] = useState<Rooms>([])
-    const initialRoomId = useRef(false)
+export default function UserDetailsOptions({ handleNewUser }: UserDetailsOptionsProps) {
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            userId: Date.now(),
-            roomId: 1,
+            senderId: crypto.randomUUID(),
+            roomName: "",
+            roomId: crypto.randomUUID(),
             username: ""
         }
     })
-
-    useEffect(() => {
-        if (rooms && rooms.length > 0) {
-            setLocalRooms(rooms)
-
-            if (!initialRoomId.current) {
-                form.setValue('roomId', rooms[0].roomId)
-                initialRoomId.current = true
-            }
-        }
-    }, [rooms])
 
     const handleSubmit = (values: FormValues) => {
         handleNewUser(values)
@@ -91,26 +69,19 @@ export default function UserDetailsOptions({ rooms, handleNewUser }: UserDetails
                 />
                 <FormField
                     control={form.control}
-                    name="roomId"
+                    name="roomName"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Chat Room</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value?.toString()}>
-                                <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select a room to join" />
-                                    </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    {localRooms &&
-                                        localRooms.map((room) => (
-                                            <SelectItem key={room.roomId} value={room.roomId.toString()}>{room.roomId}</SelectItem>
-                                        ))
-                                    }
-                                </SelectContent>
-                            </Select>
+                            <FormLabel>Chat Room Name</FormLabel>
+                            <Input
+                                placeholder="Mithril-Rocks"
+                                {...field}
+                                onChange={field.onChange}
+                                value={field.value || ''}
+                                onBlur={field.onBlur}
+                            />
                             <FormDescription>
-                                This is the room you will be assigned.
+                                This is the room name for your chat.
                             </FormDescription>
                             <FormMessage />
                         </FormItem>

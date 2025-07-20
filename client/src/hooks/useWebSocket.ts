@@ -3,8 +3,8 @@ import type { MessageData } from "@/lib/types";
 import { convertDateString } from "@/lib/utils";
 
 interface UserDetailsProps {
-    userId: number;
-    roomId: number;
+    roomId: string;
+    senderId: string;
     username: string;
 }
 
@@ -17,18 +17,12 @@ export default function useWebSocket(userDetails: UserDetailsProps | null) {
     //strict mode.
     const wsRef = useRef<WebSocket | null>(null)
 
-    // const handleReceivedMessages = useCallback((message: MessageData | null) => {
-    //     if (message !== null) {
-    //         setAllReceivedMessages(prev => [...prev, message])
-    //     }
-    // }, [])
-
     useEffect(() => {
         //FIX:
         //race condition with userdetails
         console.group("WebSocket useEffect Cycle");
         console.log("Current userDetails in useWebSocket:", userDetails);
-        if (!userDetails || !userDetails.userId || !userDetails.roomId || !userDetails.username) {
+        if (!userDetails || !userDetails.senderId || !userDetails.roomId || !userDetails.username) {
             console.log("userDetails is not ready:", userDetails)
             return
         }
@@ -38,8 +32,8 @@ export default function useWebSocket(userDetails: UserDetailsProps | null) {
         console.log("WebSocket hook initializing");
         const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const params = new URLSearchParams({
-            userId: userDetails.userId,
             roomId: userDetails.roomId,
+            senderId: userDetails.senderId,
             username: userDetails.username
         })
         const wsUrl = `${wsProtocol}//localhost:3000/ws?${params}`;

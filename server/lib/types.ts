@@ -16,7 +16,7 @@ export interface RoomUsers {
 }
 
 export type User = {
-    userId: number;
+    senderId: number;
     roomId: number;
     username: string;
     message?: string;
