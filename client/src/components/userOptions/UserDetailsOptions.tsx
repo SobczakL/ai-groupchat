@@ -14,9 +14,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 const formSchema = z.object({
-    userId: z.number(),
     roomName: z.string(),
     roomId: z.number(),
+    senderId: z.number(),
     username: z.string()
 })
 
@@ -34,7 +34,7 @@ export default function UserDetailsOptions({ handleNewUser }: UserDetailsOptions
             //NOTE:
             //Setting ID as date fine for demo, would
             //need to change for production.
-            userId: Date.now(),
+            senderId: Date.now(),
             roomName: "",
             roomId: Date.now(),
             username: ""

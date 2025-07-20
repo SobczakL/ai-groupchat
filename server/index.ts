@@ -12,7 +12,7 @@ import dbInstance, {
 import { currentRoomUsers, addNewUser } from "./routes/user"
 
 const server = Bun.serve<{
-    userId: number | null,
+    senderId: number | null,
     roomId: number | null,
     username: string | null,
     payload: Record<string, any> | null
@@ -34,11 +34,11 @@ const server = Bun.serve<{
 
 
         if (url.pathname === "/ws") {
-            const parsedUserId = parseInt(url.searchParams.get('userId') || '', 10);
+            const parsedUserId = parseInt(url.searchParams.get('senderId') || '', 10);
             const parsedRoomId = parseInt(url.searchParams.get('roomId') || '', 10);
             console.log(parsedUserId, parsedRoomId)
             const userParamsForUpgrade = {
-                userId: isNaN(parsedUserId) ? null : parsedUserId,
+                senderId: isNaN(parsedUserId) ? null : parsedUserId,
                 roomId: isNaN(parsedRoomId) ? null : parsedRoomId,
                 username: url.searchParams.get('username')
             };
@@ -77,14 +77,14 @@ const server = Bun.serve<{
             try {
                 const data = await req.json()
 
-                if (data.userId === undefined || data.roomId === undefined || data.username === undefined) {
+                if (data.senderId === undefined || data.roomId === undefined || data.username === undefined) {
                     return new Response(JSON.stringify({ error: "Missing required information" }), {
                         status: 400,
                         headers: postheaders,
                     })
                 }
                 await createRoom(data.roomName)
-                await addUserToRoom(data.userId, data.roomId, data.username)
+                await addUserToRoom(data.senderId, data.roomId, data.username)
 
                 return new Response(JSON.stringify({ message: "User added" }), {
                     status: 201,
@@ -111,14 +111,14 @@ const server = Bun.serve<{
                     username: "server",
                     role: "system",
                     content: "hello",
-                    timestamp: (Date.now()).toString()
+                    timestamp: Date.now()
                 }
             }
             const newData = JSON.stringify(data)
             server.publish(roomId, newData)
         },
         async message(ws: ServerWebSocket<{
-            userId: number | null,
+            senderId: number | null,
             roomId: number | null,
             username: string | null
         }>,
@@ -127,23 +127,24 @@ const server = Bun.serve<{
             //NOTE: ensure message is a string before parsing.
             const messageString = typeof message === "string" ? message : message.toString('utf8')
 
-            //FIX: rework this.
-            //
             const incomingMessage = JSON.parse(messageString)
+            saveMessage(incomingMessage.payload)
             console.log(incomingMessage)
             if (incomingMessage.type === "llm") {
-                const response = await llmChatExchange(incomingMessage.payload.message)
+                const response = await llmChatExchange(incomingMessage)
                 try {
                     if (response) {
                         console.log(response)
                         //FIX: need chat history cached data
                         const data = {
-                            type: "llm",
+                            type: "chat",
                             payload: {
-                                id: Date.now() + Math.random(),
-                                room: ws.data.roomId?.toString(),
+                                messageId: (Date.now() + Math.random()).toString(),
+                                roomId: incomingMessage.payload.roomId,
+                                senderId: (Date.now()).toString(),
                                 username: "llm",
-                                message: response,
+                                role: "assistant",
+                                content: response,
                                 timestamp: Date.now()
                             }
                         }

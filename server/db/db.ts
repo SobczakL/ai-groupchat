@@ -9,7 +9,7 @@ export interface Room {
 }
 
 export interface UserInRoom {
-    userId: UUID;
+    senderId: UUID;
     roomId: number;
     username: string;
 }
@@ -38,10 +38,10 @@ export function initDatabase(): void {
 
     db.run(`
         CREATE TABLE IF NOT EXISTS users (
-        userId INTEGER,
+        senderId INTEGER,
         roomId INTEGER NOT NULL,
         username TEXT NOT NULL,
-        PRIMARY KEY (userId, roomId, username),
+        PRIMARY KEY (senderId, roomId, username),
         FOREIGN KEY (roomId) REFERENCES rooms(roomId)
         )
     `)
@@ -70,10 +70,10 @@ const getRoomByIdStmt = db.prepare(
     "SELECT * FROM rooms WHERE roomId = ?"
 );
 const getRoomsByUserIdStmt = db.prepare(
-    "SELECT r.* FROM rooms r JOIN users u ON r.roomId = u.roomId WHERE u.userId = ?"
+    "SELECT r.* FROM rooms r JOIN users u ON r.roomId = u.roomId WHERE u.senderId = ?"
 );
 const insertUserInRoomStmt = db.prepare(
-    "INSERT OR IGNORE INTO users (userId, roomId, username) VALUES (?, ?, ?)"
+    "INSERT OR IGNORE INTO users (senderId, roomId, username) VALUES (?, ?, ?)"
 );
 const insertMessageStmt = db.prepare(
     "INSERT INTO messages (messageId, roomId, senderId, role, content, timestamp) VALUES (?, ?, ?, ?, ?, ?)"
@@ -94,12 +94,12 @@ export function getRoom(roomId: number): Room | null {
     return getRoomByIdStmt.get(roomId) as Room | null;
 }
 
-export function getUserRooms(userId: number): Room[] {
-    return getRoomsByUserIdStmt.all(userId) as Room[];
+export function getUserRooms(senderId: number): Room[] {
+    return getRoomsByUserIdStmt.all(senderId) as Room[];
 }
 
-export function addUserToRoom(userId: number, roomId: number, username: string): void {
-    insertUserInRoomStmt.run(userId, roomId, username);
+export function addUserToRoom(senderId: number, roomId: number, username: string): void {
+    insertUserInRoomStmt.run(senderId, roomId, username);
 }
 
 export async function saveMessage(message: Omit<ChatMessage, 'messageId' | 'timestamp'>): Promise<ChatMessage> {

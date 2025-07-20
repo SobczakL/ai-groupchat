@@ -5,7 +5,7 @@ type Room = {
 export type Rooms = Room[]
 
 export type User = {
-    userId: number;
+    senderId: number;
     roomId: number;
     username: string;
     content?: string;
@@ -38,7 +38,7 @@ type WebSocketPayload =
 type PayloadData = {
     messageId: string;
     roomId: number;
-    userId: number;
+    senderId: number;
     role: string;
     username?: string;
     content: string;

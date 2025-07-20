@@ -35,7 +35,7 @@ export default function MessageWindow({ userDetails }: MessageWindowProps) {
                 payload: {
                     messageId: (Date.now() + Math.random()).toString(),
                     roomId: userDetails.roomId,
-                    userId: userDetails.userId,
+                    senderId: userDetails.senderId,
                     role: "user",
                     // username: userDetails.username,
                     content: newMessage,
