@@ -131,7 +131,7 @@ const server = Bun.serve<{
             saveMessage(incomingMessage.payload)
             console.log(incomingMessage)
             if (incomingMessage.type === "llm") {
-                const response = await llmChatExchange(incomingMessage)
+                const response = await llmChatExchange(incomingMessage.payload)
                 try {
                     if (response) {
                         console.log(response)

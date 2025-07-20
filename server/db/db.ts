@@ -102,7 +102,7 @@ export function addUserToRoom(senderId: number, roomId: number, username: string
     insertUserInRoomStmt.run(senderId, roomId, username);
 }
 
-export async function saveMessage(message: Omit<ChatMessage, 'messageId' | 'timestamp'>): Promise<ChatMessage> {
+export async function saveMessage(message: Omit<ChatMessage, 'messageId' | 'timestamp'>): Promise<void> {
     const newMessage: ChatMessage = {
         ...message,
         messageId: crypto.randomUUID(),
@@ -116,7 +116,6 @@ export async function saveMessage(message: Omit<ChatMessage, 'messageId' | 'time
         newMessage.content,
         newMessage.timestamp
     );
-    return newMessage;
 }
 
 export function getConversationHistoryFromDB(roomId: number, limit: number = 20): ChatMessage[] {
