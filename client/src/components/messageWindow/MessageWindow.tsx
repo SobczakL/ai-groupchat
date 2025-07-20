@@ -5,49 +5,57 @@ import { Textarea } from "../ui/textarea";
 import { User, MessageData } from "@/lib/types";
 
 interface MessageWindowProps {
-    userDetails: User | null
+    userDetails: User
 
 }
 export default function MessageWindow({ userDetails }: MessageWindowProps) {
 
-    console.log("userdetails at start message window", userDetails)
     const { receivedMessages, allReceivedMessages, ws, sendMessage } = useWebSocket(userDetails);
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    const userInputMessageRef = useRef<HTMLTextAreaElement>(null);
+    const llmInputMessageRef = useRef<HTMLTextAreaElement>(null)
+
     const [messages, setMessages] = useState<MessageData[]>([]);
     const [processedMessages, setProcessedMessages] = useState(0)
 
     useEffect(() => {
-        console.log(allReceivedMessages)
         const newMessages = allReceivedMessages.slice(processedMessages)
         setMessages(prev => [...prev, ...newMessages])
         setProcessedMessages(allReceivedMessages.length)
     }, [allReceivedMessages]);
 
 
-    const handleUserMessage = () => {
-        if (textareaRef.current && textareaRef.current.value.trim()) {
-            const newMessage = textareaRef.current.value;
+    const handleUserMessage = (inputRef: React.RefObject<HTMLTextAreaElement | null>,
+        messageType: "chat" | "llm"
+    ): void => {
+        if (inputRef.current && inputRef.current.value.trim()) {
+            const newMessage = inputRef.current.value;
             const userMessage: MessageData = {
-                type: "chat",
+                type: messageType,
                 payload: {
-                    id: Date.now() + Math.random(),
-                    room: userDetails.roomId,
-                    username: userDetails.username,
-                    message: newMessage,
+                    messageId: crypto.randomUUID(),
+                    roomId: userDetails.roomId,
+                    senderId: userDetails.senderId,
+                    role: "user",
+                    // username: userDetails.username,
+                    content: newMessage,
                     timestamp: Date.now()
                 }
             }
             sendMessage(userMessage);
-            setMessages(prev => {
-                return [...prev, userMessage];
-            });
-            textareaRef.current.value = '';
+            inputRef.current.value = '';
         }
     }
-    const handleKeyDown = (e: React.KeyboardEvent) => {
+    const handleKeyDown = (e: React.KeyboardEvent, context: 'chat' | 'llm') => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            handleUserMessage();
+            if (context === 'chat') {
+                handleUserMessage(userInputMessageRef, context);
+            }
+            else if (context === 'llm') {
+                handleUserMessage(llmInputMessageRef, context);
+            }
+
         }
     };
     return (
@@ -55,17 +63,28 @@ export default function MessageWindow({ userDetails }: MessageWindowProps) {
             <div>
                 {messages &&
                     messages.map((message: MessageData, index: number) => (
-                        <p key={index}>{message.payload.message}</p>
+                        <div key={index}>
+                            <p key={index}>{message.payload.content}</p>
+                            <p>{message.payload.displayTime.time}</p>
+                        </div>
                     ))}
             </div>
             <div>
                 <Textarea
-                    ref={textareaRef}
+                    ref={userInputMessageRef}
                     placeholder="Type your message here..."
-                    onKeyDown={handleKeyDown}
+                    onKeyDown={(e) => handleKeyDown(e, 'chat')}
                 />
-                <Button onClick={handleUserMessage}>Send</Button>
+                <Button onClick={() => handleUserMessage(userInputMessageRef, 'chat')}>Send</Button>
             </div>
+            <div>
+                <Textarea
+                    ref={llmInputMessageRef}
+                    placeholder="Ask AI"
+                    onKeyDown={(e) => handleKeyDown(e, 'llm')}
+                />
+            </div>
+            <Button onClick={() => handleUserMessage(llmInputMessageRef, 'llm')}>Ask AI</Button>
         </div>
     )
 }

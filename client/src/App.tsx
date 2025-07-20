@@ -1,27 +1,25 @@
 import './App.css';
 import { useEffect, useRef, useState } from 'react';
-import useWebSocket from './hooks/useWebSocket';
 import MessageWindow from './components/messageWindow/MessageWindow';
-import UserOptionsContainer from './components/userOptions/UserOptionsContainer';
-import { useGetCurrentRooms } from './hooks/useGetCurrentRooms';
-import { CurrentUsers } from './lib/types';
-import { AddUser } from './utils/Adduser';
+import UserCountOptions from './components/userOptions/UserCountOptions';
+import UserDetailsOptions from './components/userOptions/UserDetailsOptions';
+import { UserCount, CurrentUsers } from './lib/types';
+import { useUsers } from './hooks/useUsers';
 import type { User } from './lib/types';
 
 function App() {
-    const { users, isLoading, error, fetchUserData } = useGetCurrentRooms()
+    const [userCount, setUserCount] = useState<UserCount>(null)
+    const {
+        users,
+        isLoading,
+        error,
+        fetchUsers,
+        addUser,
+        isAddingUser,
+        addUserError
+    } = useUsers()
     const [currentUsers, setCurrentUsers] = useState<CurrentUsers>({ users: [], loading: false, error: null })
     const selectedRoom = useRef<(number | null)>(null)
-
-    useEffect(() => {
-        setCurrentUsers({
-            users: users,
-            loading: isLoading,
-            error: error
-        })
-        //FIX:
-        console.log(users)
-    }, [users, isLoading, error])
 
     //FIX:
     //change to a dial of rooms
@@ -31,45 +29,62 @@ function App() {
         { roomId: 3 }
     ]
 
+    const handleUserCount = async (value: number) => {
+        try {
+            setUserCount(value)
+        }
+
+        catch (error) {
+            console.log(error)
+        }
+    }
 
     const handleNewUser = async (newUser: User) => {
         try {
-            await AddUser(newUser)
+            await addUser(newUser)
             selectedRoom.current = newUser.roomId
+            setCurrentUsers(prev => ({
+                ...prev,
+                users: [...prev.users, newUser]
+            }))
             console.log(newUser)
         }
         catch (error) {
             console.log(error)
         }
         finally {
-            fetchUserData()
+            fetchUsers()
         }
     }
 
     return (
         <div className='h-[100vh]'>
-            <UserOptionsContainer
-                rooms={roomOptions}
-                handleNewUser={handleNewUser}
+            <UserCountOptions
+                handleUserCount={handleUserCount}
             />
-            {
-                !isLoading
-                    ? currentUsers.users.map((user, index) => {
-                        console.log("user", user)
-                        if (user.roomId === selectedRoom.current) {
-                            return (
-                                <MessageWindow
-                                    key={index}
-                                    userDetails={user}
-                                // receivedMessages={receivedMessages}
-                                // allReceivedMessages={allReceivedMessages}
-                                // sendMessage={sendMessage}
-                                />
-                            );
-                        }
-                        return null;
-                    })
-                    : null
+            {userCount > 0 ? (
+                Array.from({ length: userCount }).map((_, index) => (
+                    <UserDetailsOptions
+                        key={index}
+                        rooms={roomOptions}
+                        handleNewUser={handleNewUser}
+                    />
+                ))
+            ) : (
+                <p style={{ margin: '10px', color: 'gray' }}>
+                    No user details to display. Set user count.
+                </p>
+            )}
+            {!isLoading
+                ? currentUsers.users.map((user, index) => {
+                    return (
+                        <MessageWindow
+                            key={index}
+                            userDetails={user}
+                        />
+                    );
+                })
+                : null
             }
         </div>
     );

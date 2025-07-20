@@ -5,13 +5,13 @@ import { tableHelper } from "../db/db";
 export async function currentRoomUsers(): Promise<RoomUsers[]> {
     try {
         const query = dbInstance.query(`
-            SELECT userId, roomId, username
+            SELECT senderId, roomId, username
             FROM users
         `)
         const rows = await query.all()
 
         return rows.map((row: any) => ({
-            userId: row.userId as number,
+            senderId: row.senderId as number,
             roomId: row.roomId as number,
             username: row.username as string
         }))
@@ -24,7 +24,7 @@ export async function currentRoomUsers(): Promise<RoomUsers[]> {
 
 }
 
-export async function addNewUser(userId: number, roomId: number, username: string): void {
+export async function addNewUser(senderIdId: number, roomId: number, username: string): void {
     let localRoomId = roomId;
     if (localRoomId === 0) {
         localRoomId = Math.floor(Math.random() * (999 - 100 + 1)) + 100;
@@ -39,9 +39,9 @@ export async function addNewUser(userId: number, roomId: number, username: strin
         console.log(currentUserPreferences)
         if (currentUserPreferences.length < 1) {
             const insertUser = dbInstance.prepare(`
-                INSERT OR IGNORE INTO users (userId, roomId, username) VALUES (?, ?, ?)
+                INSERT OR IGNORE INTO users (senderId, roomId, username) VALUES (?, ?, ?)
             `);
-            insertUser.run(userId, localRoomId, username)
+            insertUser.run(senderId, localRoomId, username)
         }
         else if (currentUserPreferences[0].roomId !== localRoomId) {
             const updateUser = dbInstance.query(`
@@ -52,7 +52,6 @@ export async function addNewUser(userId: number, roomId: number, username: strin
             updateUser.run(localRoomId, username)
             console.log(`User roomId changed to: ${localRoomId}`)
         }
-        tableHelper()
     }
     catch (error) {
         console.log(`Error adding user to room:`, error)

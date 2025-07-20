@@ -5,11 +5,13 @@ type Room = {
 export type Rooms = Room[]
 
 export type User = {
-    userId: number;
-    roomId: number;
+    senderId: string;
+    roomId: string;
     username: string;
-    message?: string;
+    content?: string;
 }
+
+export type UserCount = number | null
 
 export type CurrentUsers = {
     users: User[];
@@ -20,7 +22,7 @@ export type CurrentUsers = {
 //WebSocket Message Types
 type ChatMessagePayload = {
     user: User;
-    message: string;
+    content: string;
     timestamp: number;
 };
 
@@ -34,11 +36,14 @@ type WebSocketPayload =
     | any;
 
 type PayloadData = {
-    id: number;
-    room: number;
-    username: string;
-    message: string;
+    messageId: string;
+    roomId: string;
+    senderId: string;
+    role: string;
+    username?: string;
+    content: string;
     timestamp: number;
+    displayTime?: { time: string; date: string };
 }
 
 export type MessageData = {
