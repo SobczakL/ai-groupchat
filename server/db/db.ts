@@ -121,7 +121,6 @@ export function washAllTables(): void {
     db.run('DELETE FROM messages');
     db.run('DELETE FROM users');
     db.run('DELETE FROM rooms');
-    db.run('DELETE FROM sqlite_sequence WHERE name = "rooms"');
     console.log('All tables washed: messages, users, rooms (and room ID sequence reset)');
 }
 
