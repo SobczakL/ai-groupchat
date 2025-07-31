@@ -1,4 +1,4 @@
-# AI Team Chat
+# Mithril
 
-Work as a team to bring your ideas to life.
+Bringing ideas to life, together.
 
