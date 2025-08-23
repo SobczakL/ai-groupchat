@@ -5,48 +5,44 @@
 import { useState, useRef } from "react"
 import UserCountOptions from "@/components/userOptions/UserCountOptions"
 import UserDetailsOptions from "@/components/userOptions/UserDetailsOptions"
+import { useUsers } from "@/hooks/useUsers"
 
-export default function Login({ handleUserCount }) {
-
-    const [userCount, setUserCount] = useState<UserCount>(null)
+export default function Login() {
+    const {
+        users,
+        isLoading,
+        error,
+        fetchUsers,
+        addUser,
+        isAddingUser,
+        addUserError
+    } = useUsers()
+    const [currentUsers, setCurrentUsers] = useState<CurrentUsers>({ users: [], loading: false, error: null })
     const selectedRoom = useRef<(number | null)>(null)
 
-    //FIX:
-    //change to a dial of rooms
-    const roomOptions = [
-        { roomId: 1 },
-        { roomId: 2 },
-        { roomId: 3 }
-    ]
-
-    const handleUserCount = async (value: number) => {
+    const handleNewUser = async (newUser: User) => {
         try {
-            setUserCount(value)
+            await addUser(newUser)
+            selectedRoom.current = newUser.roomId
+            setCurrentUsers(prev => ({
+                ...prev,
+                users: [...prev.users, newUser]
+            }))
+            console.log(newUser)
         }
-
         catch (error) {
             console.log(error)
+        }
+        finally {
+            fetchUsers()
         }
     }
 
     return (
         <div>
-            <UserCountOptions
-                handleUserCount={handleUserCount}
+            <UserDetailsOptions
+                handleNewUser={handleNewUser}
             />
-            {userCount > 0 ? (
-                Array.from({ length: userCount }).map((_, index) => (
-                    <UserDetailsOptions
-                        key={index}
-                        rooms={roomOptions}
-                        handleNewUser={handleNewUser}
-                    />
-                ))
-            ) : (
-                <p style={{ margin: '10px', color: 'gray' }}>
-                    No user details to display. Set user count.
-                </p>
-            )}
         </div>
     )
 }
