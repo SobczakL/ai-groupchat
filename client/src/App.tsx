@@ -3,6 +3,8 @@ import DemoUserPortal from './views/temp/DemoUserPortal';
 import { useUsers } from './hooks/useUsers';
 
 function App() {
+    //NOTE:
+    //
     const {
         users,
         isLoading,
