@@ -46,6 +46,15 @@ type PayloadData = {
     displayTime?: { time: string; date: string };
 }
 
+export interface AddUserResponseData {
+    senderId: number;
+    username: string;
+}
+
+export interface ApiResponse<T> {
+    data: T;
+}
+
 export type MessageData = {
     type: "create" | "chat" | string;
     payload: PayloadData;

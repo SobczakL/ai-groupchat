@@ -1,4 +1,4 @@
-import { User } from "@/lib/types";
+import { AddUserResponseData, ApiResponse, User } from "@/lib/types";
 import { useCallback, useEffect, useState } from "react";
 
 export function useUsers() {
@@ -53,8 +53,10 @@ export function useUsers() {
                 throw new Error(`HTTP POST error! Status: ${response.status}`)
             }
 
+            const responseData: ApiResponse<AddUserResponseData> = await response.json();
+
             await fetchUsers()
-            return true;
+            return responseData.data;
         }
         catch (error: unknown) {
             console.error("Error adding user", error)

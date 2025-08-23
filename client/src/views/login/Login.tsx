@@ -22,12 +22,13 @@ export default function Login() {
 
     const handleNewUser = async (newUser: User) => {
         try {
-            await addUser(newUser)
+            const user = await addUser(newUser)
             selectedRoom.current = newUser.roomId
             setCurrentUsers(prev => ({
                 ...prev,
                 users: [...prev.users, newUser]
             }))
+            console.log(user)
             console.log(newUser)
         }
         catch (error) {
