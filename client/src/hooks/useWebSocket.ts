@@ -28,7 +28,6 @@ export default function useWebSocket(userDetails: UserDetailsProps | null) {
         }
         if (wsRef.current) return
         console.log("userdetails inside socket", userDetails)
-
         console.log("WebSocket hook initializing");
         const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const params = new URLSearchParams({

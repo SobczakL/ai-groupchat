@@ -64,3 +64,10 @@ export type WebSocketMessage = {
     type: "server_chat" | "user_create" | "user_chat" | string;
     payload: WebSocketPayload;
 };
+
+export type LocalStorageMethod = 'set' | 'get' | 'update' | 'remove';
+
+export interface LocalStoragePayload {
+    itemName: string;
+    data?: unknown;
+}
