@@ -27,11 +27,11 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface SignUpOptionsProps {
+interface SignUpProps {
     handleNewUser: (values: FormValues) => void;
 }
 
-export default function SignUpOptions({ handleNewUser }: SignUpOptionsProps) {
+export default function SignUp({ handleNewUser }: SignUpProps) {
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
