@@ -1,12 +1,11 @@
 //NOTE:
 //Demo User Flow
-//
 
-import { useState, useRef } from "react"
-import UserCountOptions from "@/components/userOptions/UserCountOptions"
+import SignUpOptions from "@/components/login/signup"
 import UserDetailsOptions from "@/components/userOptions/UserDetailsOptions"
 import { useUsers } from "@/hooks/useUsers"
 import localStorageHandler from "@/lib/utils"
+import { useNavigate } from "react-router-dom"
 
 export default function Login() {
     const {
@@ -18,6 +17,7 @@ export default function Login() {
         isAddingUser,
         addUserError
     } = useUsers()
+    const navigate = useNavigate()
 
     const handleNewUser = async (newUser: User) => {
         try {
@@ -35,6 +35,9 @@ export default function Login() {
 
     return (
         <div>
+            <SignUpOptions
+
+            />
             <UserDetailsOptions
                 handleNewUser={handleNewUser}
             />
