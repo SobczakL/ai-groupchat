@@ -10,9 +10,16 @@ export interface WebSocketHandlers {
     drain?(ws: ServerWebSocket): void;
 }
 
-export interface RoomUsers {
-    roomId: number;
-    usernames: string[];
+export interface RoomUser {
+    senderId: string;
+    roomId: string;
+    username: string;
+}
+
+export interface UserInRoom {
+    senderId: number;
+    roomId: string;
+    username: string;
 }
 
 export type User = {
@@ -21,3 +28,4 @@ export type User = {
     username: string;
     message?: string;
 }
+

@@ -48,6 +48,8 @@ const server = Bun.serve<{
                 ? undefined
                 : new Response("WebSocket upgrade failed", { status: 400 })
         }
+        //NOTE:
+        //is this needed?
         if (url.pathname === '/user' && req.method === "GET") {
             try {
                 const rooms = await getUserRooms()
@@ -77,6 +79,7 @@ const server = Bun.serve<{
             }
             try {
                 const data = await req.json()
+                console.log(data)
 
                 if (data.senderId === undefined || data.roomId === undefined || data.username === undefined) {
                     return new Response(JSON.stringify({ error: "Missing required information" }), {
@@ -84,10 +87,18 @@ const server = Bun.serve<{
                         headers: postheaders,
                     })
                 }
-                await createRoom(data.roomName)
-                await addUserToRoom(data.senderId, data.roomId, data.username)
+                await createRoom(data.roomId, data.roomName)
+                const userCheck = await addUserToRoom(data.senderId, data.roomId, data.username)
+                console.log(userCheck)
 
-                return new Response(JSON.stringify({ message: "User added" }), {
+                if (userCheck === undefined) {
+                    return new Response(JSON.stringify({ error: "Failed to add user to users table" }), {
+                        status: 500,
+                        headers: postheaders
+                    })
+                }
+
+                return new Response(JSON.stringify({ data: userCheck, message: "User added" }), {
                     status: 201,
                     headers: postheaders,
                 })
@@ -102,6 +113,10 @@ const server = Bun.serve<{
             console.log("WebSocket connection opened at open ws", ws.data)
             const roomId = ws.data.roomId
             console.log(typeof roomId)
+
+            //FIX:
+            //broadcast to roomName not ID, need function to fetch
+            //corresponding roomName to roomID
 
             ws.subscribe(roomId)
             const data = {

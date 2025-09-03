@@ -1,4 +1,5 @@
 import { Database } from 'bun:sqlite'
+import type { RoomUser } from '../lib/types';
 
 export interface Room {
     roomId: string;
@@ -72,6 +73,10 @@ const getRoomsByUserIdStmt = db.prepare(
 const insertUserInRoomStmt = db.prepare(
     "INSERT OR IGNORE INTO users (senderId, roomId, username) VALUES (?, ?, ?)"
 );
+
+const updateUserInRoomStmt = db.prepare(
+    "UPDATE users SET roomId = ? WHERE senderId = ? AND username = ?"
+)
 const insertMessageStmt = db.prepare(
     "INSERT INTO messages (messageId, roomId, senderId, role, content, timestamp) VALUES (?, ?, ?, ?, ?, ?)"
 );
@@ -79,11 +84,10 @@ const getMessagesByRoomIdStmt = db.prepare(
     "SELECT * FROM messages WHERE roomId = ? ORDER BY timestamp ASC LIMIT ?"
 );
 
-export function createRoom(roomName: string): Room {
-    const newRoomId = crypto.randomUUID()
-    insertRoomStmt.run(newRoomId, roomName);
+export function createRoom(roomId: string, roomName: string): Room {
+    insertRoomStmt.run(roomId, roomName);
     const now = new Date().toISOString();
-    return { roomId: newRoomId, roomName, createdAt: now, updatedAt: now };
+    return { roomId: roomId, roomName, createdAt: now, updatedAt: now };
 }
 
 export function getRoom(roomId: string): Room | null {
@@ -94,8 +98,15 @@ export function getUserRooms(senderId: string): Room[] {
     return getRoomsByUserIdStmt.all(senderId) as Room[];
 }
 
-export function addUserToRoom(senderId: string, roomId: string, username: string): void {
-    insertUserInRoomStmt.run(senderId, roomId, username);
+export function addUserToRoom(senderId: string, roomId: string, username: string): RoomUser {
+
+    if (getUserRooms(senderId)[0] === null) {
+        insertUserInRoomStmt.run(senderId, roomId, username);
+    }
+    else {
+        updateUserInRoomStmt.run(roomId, senderId, username)
+    }
+    return { senderId, roomId, username }
 }
 
 export async function saveMessage(message: Omit<ChatMessage, 'timestamp'>): Promise<void> {
