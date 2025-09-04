@@ -4,11 +4,19 @@ type Room = {
 }
 export type Rooms = Room[]
 
+// export type User = {
+//     senderId: string;
+//     roomId: string;
+//     username: string;
+//     content?: string;
+// }
+
 export type User = {
-    senderId: string;
-    roomId: string;
+    firstName?: string;
+    lastName?: string;
     username: string;
-    content?: string;
+    password: string;
+    role: string;
 }
 
 export type UserCount = number | null

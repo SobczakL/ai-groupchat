@@ -70,7 +70,7 @@ const server = Bun.serve<{
             }
         }
 
-        if (url.pathname === '/user' && req.method === "POST") {
+        if (url.pathname === '/user/login' && req.method === "POST") {
 
             const postheaders = {
                 "Access-Control-Allow-Origin": "*",
@@ -81,7 +81,7 @@ const server = Bun.serve<{
                 const data = await req.json()
                 console.log(data)
 
-                if (data.senderId === undefined || data.roomId === undefined || data.username === undefined) {
+                if (data.username === undefined || data.password === undefined || data.username === undefined) {
                     return new Response(JSON.stringify({ error: "Missing required information" }), {
                         status: 400,
                         headers: postheaders,

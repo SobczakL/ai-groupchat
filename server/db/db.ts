@@ -38,12 +38,24 @@ export function initDatabase(): void {
 
     db.run(`
         CREATE TABLE IF NOT EXISTS users (
-        senderId TEXT,
-        roomId TEXT NOT NULL,
-        username TEXT NOT NULL,
-        PRIMARY KEY (senderId, roomId, username),
-        FOREIGN KEY (roomId) REFERENCES rooms(roomId)
+            id INTEGER PRIMARY KEY,
+            firstName TEXT NOT NULL,
+            lastName TEXT NOT NULL,
+            username TEXT UNIQUE NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+            updatedAt TEXT DEFAULT CURRENT_TIMESTAMP
         )
+    `)
+
+    db.run(`
+        CREATE TRIGGER IF NOT EXISTS update_users_updatedAt
+        AFTER UPDATE ON users
+        FOR EACH ROW
+        BEGIN
+            UPDATE users SET updatedAt = CURRENT_TIMESTAMP WHERE id = OLD.id;
+        END;
     `)
     db.run(`
         CREATE TABLE IF NOT EXISTS messages (

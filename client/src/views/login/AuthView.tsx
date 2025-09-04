@@ -2,10 +2,9 @@
 //Demo User Flow
 
 import { Outlet } from "react-router-dom"
-import UserDetailsOptions from "@/components/userOptions/UserDetailsOptions"
 import { useNavigate } from "react-router-dom"
 
-export default function Login() {
+export default function AuthView() {
     const navigate = useNavigate()
     const [isLoggedIn, setIsLoggedIn] = useState(false)
 
